@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Converge | Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script defer src="app.js"></script>
+  </head>
+  <body data-page="dashboard">
+    <div class="page-bg"></div>
+
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Converge Dashboard</p>
+        <h1>Find research, join teams, and review submissions.</h1>
+      </div>
+      <div class="topbar-actions">
+        <button class="ghost-button role-switch active" type="button" data-role="student">Student view</button>
+        <button class="ghost-button role-switch" type="button" data-role="faculty">Faculty view</button>
+        <a class="ghost-button logout-link" href="../backend/logout.php">Logout</a>
+      </div>
+    </header>
+
+    <main class="dashboard-layout">
+      <section class="panel panel-search">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Search feed</p>
+            <h2>Approved projects from the backend</h2>
+          </div>
+          <form id="search-form" class="search-form">
+            <input id="search-input" type="search" placeholder="Search by title or tag" />
+            <button class="primary-button" type="submit">Search</button>
+          </form>
+        </div>
+
+        <div id="search-status" class="status-pill">Ready to search</div>
+        <div id="projects-grid" class="project-grid"></div>
+      </section>
+
+      <aside class="sidebar-stack">
+        <section class="panel panel-info student-panel">
+          <p class="eyebrow">Student workflow</p>
+          <h2>Join a project</h2>
+          <p>
+            The join button sends the selected project ID to <span>join_project.php</span> and shows a toast when the backend confirms success.
+          </p>
+          <div class="mini-list">
+            <div><span>1</span> Search approved projects</div>
+            <div><span>2</span> Click Join on a card</div>
+            <div><span>3</span> Stay on the dashboard</div>
+          </div>
+        </section>
+
+        <section class="panel panel-info">
+          <p class="eyebrow">Propose work</p>
+          <h2>Create a project</h2>
+          <form class="compose-form" action="../backend/create_project.php" method="POST">
+            <label>
+              Title
+              <input type="text" name="title" placeholder="Project title" required />
+            </label>
+            <label>
+              Description
+              <textarea name="description" rows="4" placeholder="What is the project about?" required></textarea>
+            </label>
+            <label>
+              Tags
+              <input type="text" name="tags" placeholder="AI,health,lab" />
+            </label>
+            <button class="primary-button" type="submit">Submit proposal</button>
+          </form>
+        </section>
+
+        <section class="panel panel-info faculty-panel">
+          <p class="eyebrow">Faculty review</p>
+          <h2>Moderate project queue</h2>
+          <p>
+            Review actions post <span>approved</span> or <span>rejected</span> to the backend and remove the card immediately after success.
+          </p>
+          <div id="review-queue" class="review-list"></div>
+        </section>
+      </aside>
+    </main>
+
+    <div id="toast" class="toast" aria-live="polite"></div>
+
+    <template id="project-card-template">
+      <article class="project-card">
+        <div class="project-meta">
+          <span class="status-tag"></span>
+          <span class="project-id"></span>
+        </div>
+        <h3 class="project-title"></h3>
+        <p class="project-description"></p>
+        <div class="tag-list"></div>
+        <div class="card-actions">
+          <button class="secondary-button join-button" type="button">Join</button>
+          <button class="secondary-button outline-button review-approve" type="button">Approve</button>
+          <button class="secondary-button outline-button review-reject" type="button">Reject</button>
+        </div>
+      </article>
+    </template>
+  </body>
+</html>
