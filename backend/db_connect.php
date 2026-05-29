@@ -2,7 +2,10 @@
 
 require "vendor/autoload.php";
 
-$uri = "mongodb+srv://Dhaksh:dg7ybICYSjmPg0HL@cluster0.cwd1iq7.mongodb.net/?appName=Cluster0";
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
+$uri = "mongodb+srv://Dhaksh:".getenv("user_password")."@cluster0.cwd1iq7.mongodb.net/?appName=Cluster0";
 try{
     $connection = new \MongoDB\Client($uri);
     $db=$connection -> db_1;
