@@ -869,8 +869,22 @@
   /* ============================================================
      STATE
   ============================================================ */
-  let currentUser = { name: '', email: '', role: '' };
+  let currentUser = { name: '', email: '', role: '', csrfToken: '' };
   let allProjects  = [];
+  /* ============================================================
+   DATA NORMALIZER HELPER
+============================================================ */
+function formatMongoData(doc) {
+  // MongoDB sends the ID as an object: {"$oid": "..."}. We need just the string.
+  const docId = (doc._id && doc._id.$oid) ? doc._id.$oid : (doc._id || doc.id);
+  
+  return {
+    ...doc,
+    id: docId,
+    student_name: doc.creator || doc.student_name || 'Unknown',
+    tags: Array.isArray(doc.tags) ? doc.tags.join(',') : (doc.tags || '')
+  };
+}
   let filteredProjects = [];
   const PAGE_SIZE = 6;
   let currentPage = 1;
@@ -903,7 +917,7 @@
   ============================================================ */
   async function init() {
     try {
-      const res  = await fetch('../backend/auth_check.php', { credentials: 'include' });
+      const res  = await fetch('../backend/get_session.php', { credentials: 'include' });
       const data = await res.json();
       if (data.status !== 'success') {
         window.location.href = 'login.html';
@@ -913,6 +927,7 @@
       currentUser.name  = data.data?.name  || 'Unknown User';
       currentUser.email = data.data?.email || '';
       currentUser.role  = data.data?.role  || 'student';
+      currentUser.csrfToken = data.csrf_token || '';
 
       applyUserUI();
       loadProjects();
@@ -966,7 +981,7 @@
       const res  = await fetch('../backend/get_projects.php', { credentials: 'include' });
       const data = await res.json();
       if (data.status === 'success') {
-        allProjects = data.data || [];
+        allProjects = (data.data || []).map(formatMongoData);
         filteredProjects = [...allProjects];
         currentPage = 1;
         renderProjects();
@@ -1069,7 +1084,6 @@
       return;
     }
 
-    // Show skeleton during search
     showSearchSkeleton();
 
     try {
@@ -1080,25 +1094,31 @@
         body: JSON.stringify({ query })
       });
       const data = await res.json();
-      if (data.status === 'success') {
-        filteredProjects = data.data || [];
+      
+      if (data.status === 'success' && data.data && data.data.length > 0) {
+        filteredProjects = data.data.map(formatMongoData);
       } else {
-        // Fallback: client-side filter on cached data
+        // Fallback: Client-side filter (Lightning Fast)
+        // FIX: Force everything to be a String so Arrays don't crash the search!
         const q = query.toLowerCase();
-        filteredProjects = allProjects.filter(p =>
-          (p.title||'').toLowerCase().includes(q) ||
-          (p.description||'').toLowerCase().includes(q) ||
-          (p.tags||'').toLowerCase().includes(q)
-        );
+        filteredProjects = allProjects.filter(p => {
+          const searchTitle = String(p.title || '').toLowerCase();
+          const searchDesc  = String(p.description || '').toLowerCase();
+          const searchTags  = String(p.tags || '').toLowerCase();
+          
+          return searchTitle.includes(q) || searchDesc.includes(q) || searchTags.includes(q);
+        });
       }
     } catch (_) {
-      // Fallback: client-side filter
+      // Catch network errors and still run the safe client-side filter
       const q = query.toLowerCase();
-      filteredProjects = allProjects.filter(p =>
-        (p.title||'').toLowerCase().includes(q) ||
-        (p.description||'').toLowerCase().includes(q) ||
-        (p.tags||'').toLowerCase().includes(q)
-      );
+      filteredProjects = allProjects.filter(p => {
+        const searchTitle = String(p.title || '').toLowerCase();
+        const searchDesc  = String(p.description || '').toLowerCase();
+        const searchTags  = String(p.tags || '').toLowerCase();
+        
+        return searchTitle.includes(q) || searchDesc.includes(q) || searchTags.includes(q);
+      });
     }
 
     currentPage = 1;
@@ -1132,7 +1152,7 @@
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ project_id: projectId })
+        body: JSON.stringify({ project_id: projectId, csrf_token: currentUser.csrfToken })
       });
       const data = await res.json();
 
@@ -1163,13 +1183,23 @@
      DETAILS MODAL
   ============================================================ */
   function openModal(projectId) {
-    const p = allProjects.find(p => p.id == projectId);
+    // FIX 1: Look in filteredProjects first so search results actually load!
+    const p = filteredProjects.find(p => p.id == projectId) || allProjects.find(p => p.id == projectId);
     if (!p) return;
 
     document.getElementById('modal-title').textContent = p.title || 'Untitled Project';
     document.getElementById('modal-desc').textContent  = p.description || '';
-    document.getElementById('modal-date').textContent  = p.created_at || p.date || 'Unknown';
-    document.getElementById('modal-faculty').textContent = p.approved_by || p.faculty_name || 'N/A';
+    
+    // FIX 2: Format the messy database timestamp into a clean, readable date
+    let dateStr = p.created_at || 'Unknown';
+    if (dateStr !== 'Unknown') {
+      const d = new Date(dateStr);
+      if (!isNaN(d)) dateStr = d.toLocaleDateString(); 
+    }
+    document.getElementById('modal-date').textContent  = dateStr;
+    
+    // FIX 3: Read the new 'approved_by' field we just added to the backend
+    document.getElementById('modal-faculty').textContent = p.approved_by || 'Unknown Faculty';
 
     // Tags
     const tags = (p.tags||'').split(',').map(t=>t.trim()).filter(Boolean);
@@ -1229,7 +1259,7 @@
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, description: desc, tags })
+        body: JSON.stringify({ title, description: desc, tags, csrf_token: currentUser.csrfToken })
       });
       const data = await res.json();
 
@@ -1255,7 +1285,8 @@
     try {
       const res  = await fetch('../backend/get_pending.php', { credentials: 'include' });
       const data = await res.json();
-      renderPendingQueue(data.data || []);
+      const mappedQueue = (data.data || []).map(formatMongoData);
+      renderPendingQueue(mappedQueue);
     } catch (err) {
       showToast('Could not load moderation queue.', 'error');
       renderPendingQueue([]);
@@ -1293,12 +1324,14 @@
     const itemEl = document.getElementById(`pending-${projectId}`);
     if (itemEl) itemEl.querySelectorAll('button').forEach(b => b.disabled = true);
 
+    const backendAction = action === 'approve' ? 'approved' : 'rejected'
+
     try {
       const res  = await fetch('../backend/review_project.php', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ project_id: projectId, action })
+        body: JSON.stringify({ project_id: projectId, action, csrf_token: currentUser.csrfToken })
       });
       const data = await res.json();
 

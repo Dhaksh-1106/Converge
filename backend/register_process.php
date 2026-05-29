@@ -1,39 +1,46 @@
 <?php
+header('Content-Type: application/json');
 require "db_connect.php";
 
-if($_SERVER["REQUEST_METHOD"] === "POST"){
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-    $email=$_POST["email"];
-    $password=$_POST["password"];
-    $role=$_POST["role"];
+    $email = $_POST["email"] ?? '';
+    $password = $_POST["password"] ?? '';
+    $role = $_POST["role"] ?? '';
 
-    $password_length=strlen($password);
-
-    if ($password_length < 8){
-        echo "Password Length too short";
+    if (strlen($password) < 8) {
+        http_response_code(400);
+        echo json_encode(["status" => "error", "message" => "Password length too short"]);
+        exit();
     }
 
-
-    else if($role != "student" && $role != "faculty"){
-        echo "Unauthorized access";
+    if ($role != "student" && $role != "faculty") {
+        http_response_code(400);
+        echo json_encode(["status" => "error", "message" => "Unauthorized access"]);
+        exit();
     }
+
+    // Check if user exists
+    $existing = $db->users->findOne(["email" => $email]);
+    if ($existing) {
+        http_response_code(409);
+        echo json_encode(["status" => "error", "message" => "Email already registered."]);
+        exit();
+    }
+
+    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+    $payload = [
+        "email" => $email,
+        "hashed_password" => $hashed_password,
+        "role" => $role,
+        "created_at" => date("c")
+    ];
     
-    else{
-
-        $hashed_password=password_hash($password,PASSWORD_DEFAULT);
-        $payload = [
-
-            "email" => $email,
-            "hashed_password" => $hashed_password,
-            "role" => $role,
-        ];
-        $db -> users -> insertOne($payload);
-        echo "Registration Successful. You can now log in";
-    }
+    $db->users->insertOne($payload);
+    
+    echo json_encode(["status" => "success", "message" => "Registration Successful. You can now log in."]);
+    exit();
 }
 
-else{
-    echo "Not a POST request";
-}
-
+echo json_encode(["status" => "error", "message" => "Not a POST request"]);
 ?>
