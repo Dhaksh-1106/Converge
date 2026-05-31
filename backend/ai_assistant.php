@@ -67,37 +67,42 @@ if ($hfKey) {
     curl_close($curl);
 
     if ($response === false) {
-        http_response_code(502);
-        echo json_encode(["status" => "error", "message" => "Hugging Face request failed: {$curlError}"]);
-        exit();
-    }
+        $isDnsIssue = stripos($curlError, 'could not resolve host') !== false || stripos($curlError, 'resolve host') !== false;
+        if ($isDnsIssue && $openaiKey) {
+            // fall through to OpenAI below
+        } else {
+            http_response_code(502);
+            echo json_encode(["status" => "error", "message" => "Hugging Face request failed: {$curlError}"]);
+            exit();
+        }
+    } else {
+        $data = json_decode($response, true);
+        if ($httpCode !== 200 || !$data) {
+            http_response_code(502);
+            echo json_encode(["status" => "error", "message" => "Invalid response from Hugging Face.", "details" => $data]);
+            exit();
+        }
+        if (isset($data['error'])) {
+            http_response_code(502);
+            echo json_encode(["status" => "error", "message" => "Hugging Face error: " . $data['error']]);
+            exit();
+        }
 
-    $data = json_decode($response, true);
-    if ($httpCode !== 200 || !$data) {
-        http_response_code(502);
-        echo json_encode(["status" => "error", "message" => "Invalid response from Hugging Face.", "details" => $data]);
-        exit();
-    }
-    if (isset($data['error'])) {
-        http_response_code(502);
-        echo json_encode(["status" => "error", "message" => "Hugging Face error: " . $data['error']]);
-        exit();
-    }
+        $assistant = '';
+        if (isset($data[0]['generated_text'])) {
+            $assistant = trim($data[0]['generated_text']);
+        } elseif (isset($data['generated_text'])) {
+            $assistant = trim($data['generated_text']);
+        }
+        if ($assistant === '') {
+            http_response_code(502);
+            echo json_encode(["status" => "error", "message" => "Unable to parse Hugging Face response.", "details" => $data]);
+            exit();
+        }
 
-    $assistant = '';
-    if (isset($data[0]['generated_text'])) {
-        $assistant = trim($data[0]['generated_text']);
-    } elseif (isset($data['generated_text'])) {
-        $assistant = trim($data['generated_text']);
-    }
-    if ($assistant === '') {
-        http_response_code(502);
-        echo json_encode(["status" => "error", "message" => "Unable to parse Hugging Face response.", "details" => $data]);
+        echo json_encode(["status" => "success", "assistant" => $assistant]);
         exit();
     }
-
-    echo json_encode(["status" => "success", "assistant" => $assistant]);
-    exit();
 }
 
 if ($openaiKey) {
