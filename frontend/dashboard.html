@@ -1473,10 +1473,20 @@ function formatMongoData(doc) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: prompt, csrf_token: currentUser.csrfToken })
       });
-      const data = await res.json();
+      let data;
+      const contentType = res.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        throw new Error(text || 'Assistant returned a non-JSON response.');
+      }
 
       if (data.status === 'success') {
         appendAssistantMessage(data.assistant, 'assistant');
+        if (data.provider) {
+          showToast(`Assistant response from ${data.provider}.`, 'info');
+        }
       } else {
         appendAssistantMessage(data.message || 'Unable to reach the assistant right now.', 'assistant');
         showToast(data.message || 'Assistant error', 'error');
