@@ -1,48 +1,43 @@
 <?php
 header('Content-Type: application/json');
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// 1. Handle CORS Preflight Options Request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
     exit();
 }
 
+// 2. Strict Method Gate
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
     http_response_code(405);
     echo json_encode(["status" => "error", "message" => "Method not allowed. Use POST."]);
     exit();
 }
 
-$autoloadPath = __DIR__ . '/vendor/autoload.php';
-if (!file_exists($autoloadPath)) {
-    http_response_code(500);
-    echo json_encode([
-        "status" => "error",
-        "message" => "Missing backend dependencies. Install Composer and run: composer install in backend directory."
-    ]);
-    exit();
+// 3. Environment Config Mapping (Native .ini parsing used in your db_connect setup)
+$envFilePath = __DIR__ . '/.env';
+if (file_exists($envFilePath)) {
+    $env = parse_ini_file($envFilePath);
+    $hfKey = $env['HF_API_KEY'] ?? $env['HF_TOKEN'] ?? getenv('HF_API_KEY') ?? getenv('HF_TOKEN');
+    $openaiKey = $env['OPENAI_API_KEY'] ?? getenv('OPENAI_API_KEY');
+    $hfModel = $env['HF_MODEL'] ?? getenv('HF_MODEL') ?? 'meta-llama/Llama-3-8B-Instruct'; // Standard operational text-router model
+    $openaiModel = $env['OPENAI_MODEL'] ?? getenv('OPENAI_MODEL') ?? 'gpt-3.5-turbo';
+} else {
+    $hfKey = getenv('HF_API_KEY') ?? getenv('HF_TOKEN');
+    $openaiKey = getenv('OPENAI_API_KEY');
+    $hfModel = getenv('HF_MODEL') ?? 'meta-llama/Llama-3-8B-Instruct';
+    $openaiModel = getenv('OPENAI_MODEL') ?? 'gpt-3.5-turbo';
 }
 
-require $autoloadPath;
-
-if (!class_exists('Dotenv\\Dotenv')) {
-    http_response_code(500);
-    echo json_encode([
-        "status" => "error",
-        "message" => "phpdotenv package missing. Run: composer install in backend directory."
-    ]);
-    exit();
-}
-
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-$dotenv->safeLoad();
-
+// 4. Incorporate Central Security Controls
 require __DIR__ . '/auth_check.php';
-
 check_access(['student', 'faculty']);
 
+// 5. Intercept and Normalize Incoming Payload Streams
 $rawBody = file_get_contents('php://input');
 $body = json_decode($rawBody, true) ?: [];
 if (!empty($body)) {
@@ -51,6 +46,7 @@ if (!empty($body)) {
 
 verify_csrf();
 
+// 6. Validate Input Presence
 $query = trim($body['query'] ?? $_POST['query'] ?? '');
 if ($query === '') {
     http_response_code(400);
@@ -58,13 +54,12 @@ if ($query === '') {
     exit();
 }
 
-$hfKey = $_ENV['HF_API_KEY'] ?? getenv('HF_API_KEY');
-$openaiKey = $_ENV['OPENAI_API_KEY'] ?? getenv('OPENAI_API_KEY');
-$hfModel = $_ENV['HF_MODEL'] ?? getenv('HF_MODEL') ?? 'google/flan-t5-small';
-$openaiModel = $_ENV['OPENAI_MODEL'] ?? getenv('OPENAI_MODEL') ?? 'gpt-3.5-turbo';
 $role = $_SESSION['role'] ?? 'student';
-$systemPrompt = 'You are Converge AI assistant. Respond concisely and help students and faculty with research project ideas, collaboration, and using the Converge platform.';
+$systemPrompt = 'You are Converge AI assistant. Respond concisely in two or three sentences maximum and help students and faculty with research project ideas, collaboration, and using the Converge platform.';
 
+// ============================================================
+// SYSTEM HELPER RESPONDERS
+// ============================================================
 function respond_success(string $assistant, string $provider = 'unknown'): void {
     echo json_encode([
         "status" => "success",
@@ -86,211 +81,125 @@ function respond_error(int $code, string $message, array $details = []): void {
 
 function local_assistant_fallback(string $query, string $role): string {
     $q = strtolower($query);
-    $prefix = $role === 'faculty'
-        ? 'Faculty mode: '
-        : 'Student mode: ';
+    $prefix = $role === 'faculty' ? 'Faculty mode: ' : 'Student mode: ';
 
-    if (strpos($q, 'idea') !== false || strpos($q, 'project') !== false) {
-        return $prefix . 'Try framing your proposal as Problem, Method, Data, and Impact. Example topics: low-cost campus energy monitoring, attendance analytics with privacy controls, or AI-assisted peer mentoring workflows.';
+    if (strpos($q, 'idea') !== false || strpos($q, 'project') !== false || strpos($q, 'research') !== false) {
+        return $prefix . 'Try framing your proposal using Problem, Method, Data, and Impact bounds. Great starting concepts include campus energy consumption analytics, privacy-preserving attendance monitors, or AI-assisted peer-mentoring architectures.';
     }
 
-    if (strpos($q, 'team') !== false || strpos($q, 'collab') !== false) {
-        return $prefix . 'Build teams with one domain expert, one implementation lead, and one testing/documentation lead. Set weekly milestones and a shared demo checklist.';
+    if (strpos($q, 'team') !== false || strpos($q, 'collab') !== false || strpos($q, 'member') !== false) {
+        return $prefix . 'Build stable teams balanced across one domain architect, an implementation developer, and a testing/documentation lead. Maintain clear weekly checkpoints and shared milestone trackers.';
     }
 
     if (strpos($q, 'converge') !== false || strpos($q, 'platform') !== false || strpos($q, 'submit') !== false) {
-        return $prefix . 'Use Submit Proposal with clear tags, then monitor status. Students can join approved projects; faculty can review pending items from the moderation panel.';
+        return $prefix . 'To post concepts, use the Submit Proposal module with comma-separated tag lines. Students can immediately join approved works from the public panel; faculty manage actions using the moderation panel.';
     }
 
-    return $prefix . 'I can help with project ideas, proposal structure, team collaboration, and Converge workflow questions. Ask with your domain, constraints, and timeline for a better answer.';
+    return $prefix . 'I can assist you with optimizing project proposals, defining team workflows, or handling your active Converge dashboard processes. Share your specific domain or timeline constraint for a tailored answer.';
 }
 
+// ============================================================
+// BACKEND HUGGING FACE INFERENCE ROUTER PIPELINE
+// ============================================================
 if ($hfKey) {
-    $url = "https://api-inference.huggingface.co/models/{$hfModel}";
-    $prompt = "{$systemPrompt}\nRole: {$role}\nUser: {$query}";
+    // 1. Maintain the global router endpoint
+    $url = "https://router.huggingface.co/v1/chat/completions";
+    
+    // 2. CORRECTION: Append the fallback provider policy suffix to your model id
+    $modelTarget = strpos($hfModel, ':') === false ? "{$hfModel}:fastest" : $hfModel;
+
     $payload = [
-        'inputs' => $prompt,
-        'parameters' => [
-            'temperature' => 0.75,
-            'max_new_tokens' => 250,
-            'return_full_text' => false,
+        'model' => $modelTarget,
+        'messages' => [
+            ['role' => 'system', 'content' => $systemPrompt],
+            ['role' => 'user', 'content' => "Role: {$role}. User query: {$query}"]
         ],
+        'temperature' => 0.75,
+        'max_tokens' => 250
     ];
 
     $curl = curl_init($url);
     if ($curl === false) {
-        http_response_code(500);
-        echo json_encode(["status" => "error", "message" => "Unable to initialize Hugging Face request."]);
-        exit();
+        respond_success(local_assistant_fallback($query, $role), 'local-fallback');
     }
 
+    // 3. CORRECTION: Add User-Agent header to slip past Cloudflare blocking rules
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($curl, CURLOPT_HTTPHEADER, [
         'Content-Type: application/json',
         'Authorization: Bearer ' . $hfKey,
+        'User-Agent: ConvergeCampusPlatform/1.0 (PHP cURL Request)' 
     ]);
     curl_setopt($curl, CURLOPT_POST, true);
     curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($payload));
-    curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 10);
-    curl_setopt($curl, CURLOPT_TIMEOUT, 35);
+    curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 30); 
+    curl_setopt($curl, CURLOPT_TIMEOUT, 60);
 
     $response = curl_exec($curl);
     $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-    $curlError = curl_error($curl);
     curl_close($curl);
 
+    // If the network drops completely, log the raw issue internally and fallback
     if ($response === false) {
-<<<<<<< HEAD
-        $isDnsIssue = stripos($curlError, 'could not resolve host') !== false || stripos($curlError, 'resolve host') !== false;
-        if ($isDnsIssue && $openaiKey) {
-            // fall through to OpenAI below
-        } else {
-            http_response_code(502);
-            echo json_encode(["status" => "error", "message" => "Hugging Face request failed: {$curlError}"]);
-            exit();
-        }
-    } else {
-        $data = json_decode($response, true);
-        if ($httpCode !== 200 || !$data) {
-            http_response_code(502);
-            echo json_encode(["status" => "error", "message" => "Invalid response from Hugging Face.", "details" => $data]);
-            exit();
-        }
-        if (isset($data['error'])) {
-            http_response_code(502);
-            echo json_encode(["status" => "error", "message" => "Hugging Face error: " . $data['error']]);
-            exit();
-        }
-
-        $assistant = '';
-        if (isset($data[0]['generated_text'])) {
-            $assistant = trim($data[0]['generated_text']);
-        } elseif (isset($data['generated_text'])) {
-            $assistant = trim($data['generated_text']);
-        }
-        if ($assistant === '') {
-            http_response_code(502);
-            echo json_encode(["status" => "error", "message" => "Unable to parse Hugging Face response.", "details" => $data]);
-            exit();
-        }
-
-        echo json_encode(["status" => "success", "assistant" => $assistant]);
-        exit();
-    }
-=======
-        respond_error(502, "Hugging Face request failed: {$curlError}");
+        respond_success(local_assistant_fallback($query, $role), 'local-fallback');
     }
 
     $data = json_decode($response, true) ?: [];
 
-    // Retry once with wait_for_model when HF returns model loading state (usually 503).
-    if ($httpCode === 503 && isset($data['error'])) {
-        $payload['options'] = ['wait_for_model' => true];
-
-        $retryCurl = curl_init($url);
-        if ($retryCurl !== false) {
-            curl_setopt($retryCurl, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($retryCurl, CURLOPT_HTTPHEADER, [
-                'Content-Type: application/json',
-                'Authorization: Bearer ' . $hfKey,
-            ]);
-            curl_setopt($retryCurl, CURLOPT_POST, true);
-            curl_setopt($retryCurl, CURLOPT_POSTFIELDS, json_encode($payload));
-            curl_setopt($retryCurl, CURLOPT_CONNECTTIMEOUT, 10);
-            curl_setopt($retryCurl, CURLOPT_TIMEOUT, 45);
-
-            $retryResponse = curl_exec($retryCurl);
-            $retryCode = curl_getinfo($retryCurl, CURLINFO_HTTP_CODE);
-            curl_close($retryCurl);
-
-            if ($retryResponse !== false) {
-                $response = $retryResponse;
-                $httpCode = $retryCode;
-                $data = json_decode($response, true) ?: [];
-            }
-        }
-    }
-
-    if (isset($data['error'])) {
-        respond_error(502, "Hugging Face error: " . $data['error'], $data);
-    }
-
+    // Extract content matching OpenAI formatting schemas returned by global routers
     $assistant = '';
-    if (isset($data[0]['generated_text'])) {
-        $assistant = trim($data[0]['generated_text']);
-    } elseif (isset($data['generated_text'])) {
-        $assistant = trim($data['generated_text']);
-    } elseif (isset($data[0]['summary_text'])) {
-        $assistant = trim($data[0]['summary_text']);
-    } elseif (isset($data[0]['translation_text'])) {
-        $assistant = trim($data[0]['translation_text']);
+    if (isset($data['choices'][0]['message']['content'])) {
+        $assistant = trim($data['choices'][0]['message']['content']);
     }
 
-    if ($assistant === '') {
-        if ($httpCode === 200) {
-            respond_success(local_assistant_fallback($query, $role), 'local-fallback');
-        }
-        respond_error(502, "Unable to parse Hugging Face response.", $data);
+    if ($assistant !== '') {
+        respond_success($assistant, 'huggingface');
     }
-
-    respond_success($assistant, 'huggingface');
->>>>>>> d8bf75d7f2624a65aedb2c682f625ff31ca8ca49
+    // Add this temporarily right before the end of the HF block to debug:
+if ($assistant === '') {
+    respond_error($httpCode, "HF API Error Response", $data);
+}
 }
 
+// ============================================================
+// OPENAI COMPILATION FALLBACK ROUTINE
+// ============================================================
 if ($openaiKey) {
     $payload = [
         'model' => $openaiModel,
         'messages' => [
-            [
-                'role' => 'system',
-                'content' => $systemPrompt,
-            ],
-            [
-                'role' => 'user',
-                'content' => "Role: {$role}. User query: {$query}",
-            ],
+            ['role' => 'system', 'content' => $systemPrompt],
+            ['role' => 'user', 'content' => "Role: {$role}. User query: {$query}"],
         ],
         'temperature' => 0.75,
         'max_tokens' => 500,
     ];
 
     $curl = curl_init('https://api.openai.com/v1/chat/completions');
-    if ($curl === false) {
-        http_response_code(500);
-        echo json_encode(["status" => "error", "message" => "Unable to initialize OpenAI request."]);
-        exit();
+    if ($curl !== false) {
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $openaiKey,
+        ]);
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($payload));
+        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 15);
+        curl_setopt($curl, CURLOPT_TIMEOUT, 35);
+
+        $response = curl_exec($curl);
+        curl_close($curl);
+
+        if ($response !== false) {
+            $data = json_decode($response, true) ?: [];
+            if (isset($data['choices'][0]['message']['content'])) {
+                $assistant = trim($data['choices'][0]['message']['content']);
+                respond_success($assistant, 'openai');
+            }
+        }
     }
-
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($curl, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json',
-        'Authorization: Bearer ' . $openaiKey,
-    ]);
-    curl_setopt($curl, CURLOPT_POST, true);
-    curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($payload));
-    curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 10);
-    curl_setopt($curl, CURLOPT_TIMEOUT, 35);
-
-    $response = curl_exec($curl);
-    $curlError = curl_error($curl);
-    $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-    curl_close($curl);
-
-    if ($response === false) {
-        respond_error(502, "OpenAI request failed: {$curlError}");
-    }
-
-    $data = json_decode($response, true) ?: [];
-    if (isset($data['error']['message'])) {
-        respond_error(502, "OpenAI error: " . $data['error']['message'], $data);
-    }
-
-    if (!$data || !isset($data['choices'][0]['message']['content'])) {
-        respond_error(502, "Invalid response from OpenAI.", ['http_code' => $httpCode, 'raw' => $data]);
-    }
-
-    $assistant = trim($data['choices'][0]['message']['content']);
-    respond_success($assistant, 'openai');
 }
 
+// Default back to localized server rules if all external calls are network dropped
 respond_success(local_assistant_fallback($query, $role), 'local-fallback');
+?>

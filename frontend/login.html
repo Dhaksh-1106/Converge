@@ -9,9 +9,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 
   <style>
-    /* ============================================================
-       DESIGN TOKENS & RESET
-    ============================================================ */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
@@ -38,650 +35,249 @@
       overflow: hidden;
     }
 
-    /* ============================================================
-       AMBIENT BLOBS
-    ============================================================ */
-    .blob {
-      position: fixed;
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 0;
-      opacity: 0.18;
-      filter: blur(90px);
-    }
-    .blob-1 {
-      width: 520px; height: 520px;
-      top: -160px; left: -160px;
-      background: radial-gradient(circle, #3B6FD4 0%, #1a3a8f 60%, transparent 100%);
-      animation: blobDrift1 14s ease-in-out infinite alternate;
-    }
-    .blob-2 {
-      width: 480px; height: 480px;
-      bottom: -140px; right: -140px;
-      background: radial-gradient(circle, #7C3AED 0%, #4c1d95 60%, transparent 100%);
-      animation: blobDrift2 16s ease-in-out infinite alternate;
-    }
-    @keyframes blobDrift1 {
-      from { transform: translate(0,0) scale(1); }
-      to   { transform: translate(40px, 30px) scale(1.08); }
-    }
-    @keyframes blobDrift2 {
-      from { transform: translate(0,0) scale(1); }
-      to   { transform: translate(-30px,-40px) scale(1.06); }
-    }
+    /* Ambient blobs */
+    .blob { position: fixed; border-radius: 50%; pointer-events: none; z-index: 0; opacity: 0.18; filter: blur(90px); }
+    .blob-1 { width: 520px; height: 520px; top: -160px; left: -160px; background: radial-gradient(circle, #3B6FD4 0%, #1a3a8f 60%, transparent 100%); animation: blobDrift1 14s ease-in-out infinite alternate; }
+    .blob-2 { width: 480px; height: 480px; bottom: -140px; right: -140px; background: radial-gradient(circle, #7C3AED 0%, #4c1d95 60%, transparent 100%); animation: blobDrift2 16s ease-in-out infinite alternate; }
+    @keyframes blobDrift1 { from { transform: translate(0,0) scale(1); } to { transform: translate(40px, 30px) scale(1.08); } }
+    @keyframes blobDrift2 { from { transform: translate(0,0) scale(1); } to { transform: translate(-30px,-40px) scale(1.06); } }
 
-    /* ============================================================
-       CENTERED LAYOUT
-    ============================================================ */
-    .page-center {
-      position: relative;
-      z-index: 1;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
+    .page-center { position: relative; z-index: 1; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px; }
 
-    /* ============================================================
-       CARD
-    ============================================================ */
+    /* Compact Card Resizing */
     .card {
       width: 100%;
-      max-width: 440px;
+      max-width: 460px;
       background: rgba(15,22,35,0.82);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border: 1px solid var(--border);
       border-radius: var(--radius-card);
-      padding: 36px 32px 32px;
+      padding: 28px 32px;
       box-shadow: 0 0 0 0 var(--accent-glow);
       transition: box-shadow 0.35s ease;
     }
-    .card:hover {
-      box-shadow: 0 0 48px 0 var(--accent-glow);
-    }
+    .card:hover { box-shadow: 0 0 48px 0 var(--accent-glow); }
 
-    /* ============================================================
-       BRANDING
-    ============================================================ */
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      justify-content: center;
-      margin-bottom: 6px;
-    }
-    .brand-logo { flex-shrink: 0; }
-    .brand-name {
-      font-size: 26px;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      background: linear-gradient(135deg, #F0F4FF 0%, #4F8EF7 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .brand-tagline {
-      text-align: center;
-      font-size: 12.5px;
-      color: var(--muted);
-      letter-spacing: 0.04em;
-      margin-bottom: 28px;
-    }
+    .brand { display: flex; align-items: center; gap: 10px; justify-content: center; margin-bottom: 4px; }
+    .brand-logo { flex-shrink: 0; width: 28px; height: 28px; }
+    .brand-name { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; background: linear-gradient(135deg, #F0F4FF 0%, #4F8EF7 100%); background-clip: text; -webkit-text-fill-color: transparent; }
+    .brand-tagline { text-align: center; font-size: 11.5px; color: var(--muted); letter-spacing: 0.04em; margin-bottom: 20px; }
 
-    /* ============================================================
-       TAB SWITCHER
-    ============================================================ */
-    .tab-switcher {
-      position: relative;
-      display: flex;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-pill);
-      padding: 4px;
-      margin-bottom: 28px;
-    }
-    .tab-indicator {
-      position: absolute;
-      top: 4px;
-      left: 4px;
-      width: calc(50% - 4px);
-      height: calc(100% - 8px);
-      background: var(--accent);
-      border-radius: var(--radius-pill);
-      transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
-      box-shadow: 0 0 16px var(--accent-glow);
-      z-index: 0;
-    }
+    .tab-switcher { position: relative; display: flex; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: var(--radius-pill); padding: 4px; margin-bottom: 20px; }
+    .tab-indicator { position: absolute; top: 4px; left: 4px; width: calc(50% - 4px); height: calc(100% - 8px); background: var(--accent); border-radius: var(--radius-pill); transition: transform 0.28s cubic-bezier(0.4,0,0.2,1); box-shadow: 0 0 16px var(--accent-glow); z-index: 0; }
     .tab-indicator.on-register { transform: translateX(100%); }
-    .tab-btn {
-      position: relative;
-      z-index: 1;
-      flex: 1;
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      font-family: 'Inter', sans-serif;
-      font-size: 13.5px;
-      font-weight: 600;
-      color: var(--muted);
-      padding: 8px 0;
-      border-radius: var(--radius-pill);
-      transition: color 0.2s ease;
-    }
+    .tab-btn { position: relative; z-index: 1; flex: 1; background: transparent; border: none; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; color: var(--muted); padding: 6px 0; border-radius: var(--radius-pill); transition: color 0.2s ease; }
     .tab-btn.active { color: #fff; }
 
-    /* ============================================================
-       TAB PANELS
-    ============================================================ */
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
 
-    /* ============================================================
-       FORM ELEMENTS
-    ============================================================ */
-    .form-group { margin-bottom: 16px; }
-    .form-label {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--muted);
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      margin-bottom: 7px;
-    }
-    .input-wrap {
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
-    .input-wrap input {
-      width: 100%;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 11px 14px;
-      font-family: 'Inter', sans-serif;
-      font-size: 14px;
-      color: var(--text);
-      outline: none;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
+    /* CSS Grid for side-by-side inputs */
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .form-group { margin-bottom: 12px; }
+    .form-row .form-group { margin-bottom: 0; }
+    
+    .form-label { display: block; font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px; }
+    .input-wrap { position: relative; display: flex; align-items: center; }
+    .input-wrap input { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; font-family: 'Inter', sans-serif; font-size: 13px; color: var(--text); outline: none; transition: all 0.2s ease; }
     .input-wrap input::placeholder { color: var(--muted); }
-    .input-wrap input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(79,142,247,0.15);
-    }
-    .input-wrap input.error {
-      border-color: var(--danger);
-      box-shadow: 0 0 0 3px rgba(239,68,68,0.15);
-      animation: shake 0.4s ease;
-    }
-    @keyframes shake {
-      0%,100% { transform: translateX(0); }
-      20%      { transform: translateX(-6px); }
-      40%      { transform: translateX(6px); }
-      60%      { transform: translateX(-4px); }
-      80%      { transform: translateX(4px); }
-    }
-    .field-error {
-      font-size: 11.5px;
-      color: var(--danger);
-      margin-top: 5px;
-      display: none;
-    }
+    .input-wrap input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,142,247,0.15); }
+    .input-wrap input.error { border-color: var(--danger); box-shadow: 0 0 0 3px rgba(239,68,68,0.15); }
+    
+    .field-error { font-size: 11px; color: var(--danger); margin-top: 4px; display: none; }
     .field-error.show { display: block; }
-
-    /* Password toggle */
-    .pw-toggle {
-      position: absolute;
-      right: 12px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: var(--muted);
-      display: flex;
-      align-items: center;
-      transition: color 0.2s;
-      padding: 0;
-    }
+    .pw-toggle { position: absolute; right: 10px; background: none; border: none; cursor: pointer; color: var(--muted); display: flex; align-items: center; padding: 0; }
     .pw-toggle:hover { color: var(--text); }
 
-    /* ============================================================
-       REMEMBER ME TOGGLE
-    ============================================================ */
-    .toggle-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-    .toggle-label { font-size: 13px; color: var(--muted); cursor: pointer; user-select: none; }
-    .toggle-switch {
-      position: relative;
-      width: 34px;
-      height: 20px;
-      flex-shrink: 0;
-    }
+    .toggle-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+    .toggle-label { font-size: 12.5px; color: var(--muted); cursor: pointer; user-select: none; }
+    .toggle-switch { position: relative; width: 32px; height: 18px; flex-shrink: 0; }
     .toggle-switch input { opacity: 0; width: 0; height: 0; }
-    .toggle-track {
-      position: absolute;
-      inset: 0;
-      background: rgba(255,255,255,0.08);
-      border-radius: 999px;
-      cursor: pointer;
-      transition: background 0.2s;
-      border: 1px solid var(--border);
-    }
-    .toggle-track::after {
-      content: '';
-      position: absolute;
-      top: 3px; left: 3px;
-      width: 12px; height: 12px;
-      background: var(--muted);
-      border-radius: 50%;
-      transition: transform 0.2s, background 0.2s;
-    }
+    .toggle-track { position: absolute; inset: 0; background: rgba(255,255,255,0.08); border-radius: 999px; cursor: pointer; transition: background 0.2s; border: 1px solid var(--border); }
+    .toggle-track::after { content: ''; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; background: var(--muted); border-radius: 50%; transition: transform 0.2s, background 0.2s; }
     .toggle-switch input:checked + .toggle-track { background: rgba(79,142,247,0.25); border-color: var(--accent); }
     .toggle-switch input:checked + .toggle-track::after { transform: translateX(14px); background: var(--accent); }
 
-    /* ============================================================
-       BUTTONS
-    ============================================================ */
-    .btn-primary {
-      width: 100%;
-      padding: 13px;
-      background: var(--accent);
-      border: none;
-      border-radius: var(--radius-btn);
-      font-family: 'Inter', sans-serif;
-      font-size: 14.5px;
-      font-weight: 700;
-      color: #fff;
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-    .btn-primary:hover:not(:disabled) {
-      background: #6BA3F9;
-      box-shadow: 0 0 24px rgba(79,142,247,0.45);
-      transform: translateY(-1px);
-    }
-    .btn-primary:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
-    /* Shimmer */
-    .btn-primary::before {
-      content: '';
-      position: absolute;
-      top: 0; left: -100%;
-      width: 60%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
-      transition: left 0.4s ease;
-    }
-    .btn-primary:hover:not(:disabled)::before { left: 140%; }
-    /* Spinner inside button */
-    .btn-spinner {
-      display: none;
-      width: 16px; height: 16px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-    }
+    .btn-primary { width: 100%; padding: 11px; background: var(--accent); border: none; border-radius: var(--radius-btn); font-family: 'Inter', sans-serif; font-size: 13.5px; font-weight: 700; color: #fff; cursor: pointer; position: relative; overflow: hidden; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-primary:hover:not(:disabled) { background: #6BA3F9; box-shadow: 0 0 24px rgba(79,142,247,0.45); }
+    .btn-primary:disabled { opacity: 0.65; cursor: not-allowed; }
+    .btn-spinner { display: none; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
     .btn-spinner.show { display: block; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ============================================================
-       ROLE SELECTOR (Register)
-    ============================================================ */
-    .role-selector {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-    .role-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      padding: 14px 10px;
-      background: rgba(255,255,255,0.03);
-      border: 1.5px solid var(--border);
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      user-select: none;
-    }
-    .role-card:hover { border-color: rgba(79,142,247,0.4); background: rgba(79,142,247,0.06); }
-    .role-card.selected {
-      border-color: var(--accent);
-      background: rgba(79,142,247,0.12);
-      box-shadow: 0 0 18px rgba(79,142,247,0.2);
-    }
-    .role-card svg { opacity: 0.7; }
+    .role-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+    .role-card { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 10px; cursor: pointer; transition: all 0.2s ease; }
+    .role-card.selected { border-color: var(--accent); background: rgba(79,142,247,0.12); box-shadow: 0 0 14px rgba(79,142,247,0.2); }
+    .role-card svg { opacity: 0.7; width: 22px; height: 22px; }
     .role-card.selected svg { opacity: 1; }
-    .role-card span { font-size: 13px; font-weight: 600; color: var(--muted); }
+    .role-card span { font-size: 12px; font-weight: 600; color: var(--muted); }
     .role-card.selected span { color: var(--text); }
 
-    /* Department slide-in */
-    .dept-wrap {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.3s;
-      opacity: 0;
-    }
-    .dept-wrap.show { max-height: 90px; opacity: 1; }
+    .dept-wrap { max-height: 0; overflow: hidden; transition: max-height 0.3s ease, opacity 0.3s; opacity: 0; }
+    .dept-wrap.show { max-height: 70px; opacity: 1; }
 
-    /* ============================================================
-       PASSWORD STRENGTH
-    ============================================================ */
-    .pw-strength { margin-top: 8px; }
-    .pw-strength-bar {
-      height: 3px;
-      background: rgba(255,255,255,0.08);
-      border-radius: 999px;
-      overflow: hidden;
-    }
-    .pw-strength-fill {
-      height: 100%;
-      width: 0%;
-      border-radius: 999px;
-      transition: width 0.3s ease, background 0.3s ease;
-    }
-    .pw-strength-label {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 4px;
-    }
+    .pw-strength { margin-top: 6px; }
+    .pw-strength-bar { height: 3px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden; }
+    .pw-strength-fill { height: 100%; width: 0%; border-radius: 999px; transition: width 0.3s ease, background 0.3s ease; }
+    .pw-strength-label { font-size: 10.5px; color: var(--muted); margin-top: 4px; }
 
-    /* ============================================================
-       TOAST SYSTEM
-    ============================================================ */
-    #toast-container {
-      position: fixed;
-      bottom: 32px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      pointer-events: none;
-    }
-    .toast {
-      pointer-events: auto;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 20px;
-      border-radius: var(--radius-pill);
-      font-size: 13.5px;
-      font-weight: 500;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-      white-space: nowrap;
-      animation: toastIn 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards;
-    }
+    #toast-container { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; }
+    .toast { pointer-events: auto; display: flex; align-items: center; gap: 10px; padding: 12px 20px; border-radius: var(--radius-pill); font-size: 13px; font-weight: 500; background: var(--surface); border: 1px solid var(--border); box-shadow: 0 8px 32px rgba(0,0,0,0.5); white-space: nowrap; animation: toastIn 0.35s forwards; }
     .toast.out { animation: toastOut 0.3s ease forwards; }
-    .toast.success { border-left: 3px solid var(--success); }
-    .toast.error   { border-left: 3px solid var(--danger); }
-    .toast.info    { border-left: 3px solid var(--accent); }
-    @keyframes toastIn  { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
-    @keyframes toastOut { from { opacity:1; transform: translateY(0); }   to { opacity:0; transform: translateY(-12px); } }
-
-    /* Divider */
-    .divider {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin: 20px 0;
-      color: var(--muted);
-      font-size: 11px;
-    }
-    .divider::before, .divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--border);
-    }
+    .toast.success { border-left: 3px solid var(--success); } .toast.error { border-left: 3px solid var(--danger); }
+    @keyframes toastIn { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
+    @keyframes toastOut { from { opacity:1; transform: translateY(0); } to { opacity:0; transform: translateY(-12px); } }
   </style>
 </head>
 <body>
 
-  <!-- Ambient blobs -->
   <div class="blob blob-1"></div>
   <div class="blob blob-2"></div>
-
-  <!-- Toast container -->
   <div id="toast-container"></div>
 
-  <!-- Centered card -->
   <div class="page-center">
     <div class="card">
-
-      <!-- Branding -->
       <div class="brand">
-        <svg class="brand-logo" width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg class="brand-logo" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
           <circle cx="12" cy="17" r="9" fill="none" stroke="#4F8EF7" stroke-width="2" opacity="0.9"/>
           <circle cx="22" cy="17" r="9" fill="none" stroke="#7C3AED" stroke-width="2" opacity="0.9"/>
-          <!-- nodes -->
           <circle cx="5"  cy="17" r="2" fill="#4F8EF7"/>
           <circle cx="17" cy="10" r="2" fill="#8B6EF7"/>
           <circle cx="17" cy="24" r="2" fill="#8B6EF7"/>
           <circle cx="29" cy="17" r="2" fill="#7C3AED"/>
-          <circle cx="12" cy="17" r="1.5" fill="#6BA3F9"/>
-          <circle cx="22" cy="17" r="1.5" fill="#9D84F7"/>
         </svg>
         <span class="brand-name">Converge</span>
       </div>
       <p class="brand-tagline">Campus Research Collaboration Network</p>
 
-      <!-- Tab Switcher -->
       <div class="tab-switcher" role="tablist">
         <div class="tab-indicator" id="tab-indicator"></div>
         <button class="tab-btn active" id="tab-signin" role="tab" aria-selected="true" onclick="switchTab('signin')">Sign In</button>
-        <button class="tab-btn"        id="tab-register" role="tab" aria-selected="false" onclick="switchTab('register')">Register</button>
+        <button class="tab-btn" id="tab-register" role="tab" aria-selected="false" onclick="switchTab('register')">Register</button>
       </div>
 
-      <!-- ====================== SIGN IN PANEL ====================== -->
+      <!-- SIGN IN PANEL -->
       <div class="tab-panel active" id="panel-signin">
         <div class="form-group">
           <label class="form-label" for="si-email">Email Address</label>
-          <div class="input-wrap">
-            <input type="email" id="si-email" placeholder="you@university.edu" autocomplete="email" />
-          </div>
+          <div class="input-wrap"><input type="email" id="si-email" placeholder="you@university.edu" autocomplete="email" /></div>
           <div class="field-error" id="si-email-err">Please enter a valid email.</div>
         </div>
-
         <div class="form-group">
           <label class="form-label" for="si-password">Password</label>
           <div class="input-wrap">
-            <input type="password" id="si-password" placeholder="••••••••" autocomplete="current-password" style="padding-right:40px" />
-            <button class="pw-toggle" type="button" onclick="togglePassword('si-password', this)" aria-label="Show/hide password">
-              <!-- Eye icon -->
-              <svg id="si-eye" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                <circle cx="12" cy="12" r="3"/>
-              </svg>
+            <input type="password" id="si-password" placeholder="••••••••" autocomplete="current-password" style="padding-right:36px" />
+            <button class="pw-toggle" type="button" onclick="togglePassword('si-password', this)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
             </button>
           </div>
           <div class="field-error" id="si-pw-err">Please enter your password.</div>
         </div>
-
         <div class="toggle-row">
-          <label class="toggle-switch">
-            <input type="checkbox" id="si-remember" />
-            <span class="toggle-track"></span>
-          </label>
+          <label class="toggle-switch"><input type="checkbox" id="si-remember" /><span class="toggle-track"></span></label>
           <label class="toggle-label" for="si-remember">Remember me</label>
         </div>
-
         <button class="btn-primary" id="si-submit-btn" onclick="handleSignIn()">
-          <div class="btn-spinner" id="si-spinner"></div>
-          <span id="si-btn-text">Sign In</span>
+          <div class="btn-spinner" id="si-spinner"></div><span id="si-btn-text">Sign In</span>
         </button>
       </div>
 
-      <!-- ====================== REGISTER PANEL ====================== -->
+      <!-- REGISTER PANEL -->
       <div class="tab-panel" id="panel-register">
-        <div class="form-group">
-          <label class="form-label" for="rg-name">Full Name</label>
-          <div class="input-wrap">
-            <input type="text" id="rg-name" placeholder="Jane Smith" autocomplete="name" />
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="rg-name">Full Name</label>
+            <div class="input-wrap"><input type="text" id="rg-name" placeholder="Jane Smith" autocomplete="name" /></div>
+            <div class="field-error" id="rg-name-err">Required.</div>
           </div>
-          <div class="field-error" id="rg-name-err">Please enter your full name.</div>
+          <div class="form-group">
+            <label class="form-label" for="rg-email">Email Address</label>
+            <div class="input-wrap"><input type="email" id="rg-email" placeholder="you@university.edu" autocomplete="email" /></div>
+            <div class="field-error" id="rg-email-err">Invalid email.</div>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label class="form-label" for="rg-email">Email Address</label>
-          <div class="input-wrap">
-            <input type="email" id="rg-email" placeholder="you@university.edu" autocomplete="email" />
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="rg-password">Password</label>
+            <div class="input-wrap">
+              <input type="password" id="rg-password" placeholder="Create password" autocomplete="new-password" style="padding-right:36px" oninput="updateStrength(this.value)" />
+              <button class="pw-toggle" type="button" onclick="togglePassword('rg-password', this)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+            </div>
+            <div class="field-error" id="rg-pw-err">Too weak.</div>
           </div>
-          <div class="field-error" id="rg-email-err">Please enter a valid email.</div>
+          <div class="form-group">
+            <label class="form-label" for="rg-confirm">Confirm</label>
+            <div class="input-wrap">
+              <input type="password" id="rg-confirm" placeholder="Repeat password" autocomplete="new-password" style="padding-right:36px" />
+              <button class="pw-toggle" type="button" onclick="togglePassword('rg-confirm', this)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+            </div>
+            <div class="field-error" id="rg-confirm-err">Mismatch.</div>
+          </div>
+        </div>
+        
+        <div class="pw-strength" style="margin-top:-6px; margin-bottom: 12px;">
+          <div class="pw-strength-bar"><div class="pw-strength-fill" id="pw-fill"></div></div>
+          <div class="pw-strength-label" id="pw-label">Enter a password</div>
         </div>
 
-        <div class="form-group">
-          <label class="form-label" for="rg-password">Password</label>
-          <div class="input-wrap">
-            <input type="password" id="rg-password" placeholder="Create a strong password" autocomplete="new-password" style="padding-right:40px" oninput="updateStrength(this.value)" />
-            <button class="pw-toggle" type="button" onclick="togglePassword('rg-password', this)" aria-label="Show/hide password">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                <circle cx="12" cy="12" r="3"/>
-              </svg>
-            </button>
-          </div>
-          <div class="pw-strength">
-            <div class="pw-strength-bar"><div class="pw-strength-fill" id="pw-fill"></div></div>
-            <div class="pw-strength-label" id="pw-label">Enter a password</div>
-          </div>
-          <div class="field-error" id="rg-pw-err">Password must be at least moderate strength.</div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="rg-confirm">Confirm Password</label>
-          <div class="input-wrap">
-            <input type="password" id="rg-confirm" placeholder="Repeat your password" autocomplete="new-password" style="padding-right:40px" />
-            <button class="pw-toggle" type="button" onclick="togglePassword('rg-confirm', this)" aria-label="Show/hide password">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                <circle cx="12" cy="12" r="3"/>
-              </svg>
-            </button>
-          </div>
-          <div class="field-error" id="rg-confirm-err">Passwords do not match.</div>
-        </div>
-
-        <!-- Role selector -->
         <div class="form-group">
           <div class="form-label">Role</div>
           <div class="role-selector">
             <div class="role-card selected" id="role-student" onclick="selectRole('student')">
-              <!-- Graduation cap -->
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4F8EF7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-                <path d="M6 12v5c3.333 2 8.667 2 12 0v-5"/>
-              </svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="#4F8EF7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3.333 2 8.667 2 12 0v-5"/></svg>
               <span>Student</span>
             </div>
             <div class="role-card" id="role-faculty" onclick="selectRole('faculty')">
-              <!-- Clipboard -->
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
-                <line x1="9" y1="12" x2="15" y2="12"/>
-                <line x1="9" y1="16" x2="13" y2="16"/>
-              </svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>
               <span>Faculty</span>
             </div>
           </div>
           <input type="hidden" id="rg-role" value="student" />
         </div>
 
-        <!-- Department (faculty only) -->
         <div class="dept-wrap" id="dept-wrap">
           <div class="form-group">
             <label class="form-label" for="rg-dept">Department</label>
-            <div class="input-wrap">
-              <input type="text" id="rg-dept" placeholder="e.g. Computer Science" />
-            </div>
+            <div class="input-wrap"><input type="text" id="rg-dept" placeholder="e.g. Computer Science" /></div>
           </div>
         </div>
 
         <button class="btn-primary" id="rg-submit-btn" onclick="handleRegister()">
-          <div class="btn-spinner" id="rg-spinner"></div>
-          <span id="rg-btn-text">Create Account</span>
+          <div class="btn-spinner" id="rg-spinner"></div><span id="rg-btn-text">Create Account</span>
         </button>
       </div>
 
-    </div><!-- /card -->
-  </div><!-- /page-center -->
+    </div>
+  </div>
 
   <script>
-    /* ============================================================
-       TAB SWITCHER
-    ============================================================ */
     let currentTab = 'signin';
-
     function switchTab(tab) {
       currentTab = tab;
-      const indicator = document.getElementById('tab-indicator');
       document.getElementById('tab-signin').classList.toggle('active', tab === 'signin');
       document.getElementById('tab-register').classList.toggle('active', tab === 'register');
       document.getElementById('panel-signin').classList.toggle('active', tab === 'signin');
       document.getElementById('panel-register').classList.toggle('active', tab === 'register');
-      indicator.classList.toggle('on-register', tab === 'register');
-      document.getElementById('tab-signin').setAttribute('aria-selected', tab === 'signin');
-      document.getElementById('tab-register').setAttribute('aria-selected', tab === 'register');
+      document.getElementById('tab-indicator').classList.toggle('on-register', tab === 'register');
     }
 
-    /* ============================================================
-       PASSWORD SHOW / HIDE
-    ============================================================ */
     function togglePassword(inputId, btn) {
       const input = document.getElementById(inputId);
-      const isText = input.type === 'text';
-      input.type = isText ? 'password' : 'text';
-      // Swap icon
-      btn.innerHTML = isText
-        ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`
-        : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+      input.type = input.type === 'text' ? 'password' : 'text';
     }
 
-    /* ============================================================
-       PASSWORD STRENGTH
-    ============================================================ */
-    let pwStrengthLevel = 0; // 0=empty, 1=weak, 2=moderate, 3=strong
-
+    let pwStrengthLevel = 0;
     function updateStrength(val) {
-      const fill  = document.getElementById('pw-fill');
-      const label = document.getElementById('pw-label');
-      if (!val) {
-        fill.style.width = '0%'; fill.style.background = ''; label.textContent = 'Enter a password'; pwStrengthLevel = 0; return;
-      }
-      let score = 0;
-      if (val.length >= 8)              score++;
-      if (/[A-Z]/.test(val))            score++;
-      if (/[0-9]/.test(val))            score++;
-      if (/[^A-Za-z0-9]/.test(val))    score++;
-      if (val.length >= 12)             score++;
-
-      if (score <= 1)      { fill.style.width='33%'; fill.style.background='#EF4444'; label.textContent='Weak'; pwStrengthLevel=1; }
-      else if (score <= 3) { fill.style.width='66%'; fill.style.background='#F59E0B'; label.textContent='Moderate'; pwStrengthLevel=2; }
-      else                 { fill.style.width='100%'; fill.style.background='#22C55E'; label.textContent='Strong'; pwStrengthLevel=3; }
+      const fill = document.getElementById('pw-fill'), label = document.getElementById('pw-label');
+      if (!val) { fill.style.width = '0%'; fill.style.background = ''; label.textContent = 'Enter a password'; pwStrengthLevel = 0; return; }
+      let score = (val.length >= 8 ? 1 : 0) + (/[A-Z]/.test(val) ? 1 : 0) + (/[0-9]/.test(val) ? 1 : 0) + (/[^A-Za-z0-9]/.test(val) ? 1 : 0);
+      if (score <= 1) { fill.style.width='33%'; fill.style.background='#EF4444'; label.textContent='Weak'; pwStrengthLevel=1; }
+      else if (score <= 2) { fill.style.width='66%'; fill.style.background='#F59E0B'; label.textContent='Moderate'; pwStrengthLevel=2; }
+      else { fill.style.width='100%'; fill.style.background='#22C55E'; label.textContent='Strong'; pwStrengthLevel=3; }
     }
 
-    /* ============================================================
-       ROLE SELECTOR
-    ============================================================ */
     function selectRole(role) {
       document.getElementById('rg-role').value = role;
       document.getElementById('role-student').classList.toggle('selected', role === 'student');
@@ -689,159 +285,55 @@
       document.getElementById('dept-wrap').classList.toggle('show', role === 'faculty');
     }
 
-    /* ============================================================
-       VALIDATION HELPERS
-    ============================================================ */
     function setError(inputId, errId, show, msg) {
-      const input = document.getElementById(inputId);
-      const err   = document.getElementById(errId);
-      if (show) {
-        input.classList.add('error');
-        err.textContent = msg || err.textContent;
-        err.classList.add('show');
-        // Retrigger shake
-        input.style.animation = 'none';
-        input.offsetHeight;
-        input.style.animation = '';
-      } else {
-        input.classList.remove('error');
-        err.classList.remove('show');
-      }
+      const input = document.getElementById(inputId), err = document.getElementById(errId);
+      if (show) { input.classList.add('error'); err.textContent = msg || err.textContent; err.classList.add('show'); } 
+      else { input.classList.remove('error'); err.classList.remove('show'); }
     }
+    function clearErrors(...ids) { ids.forEach(id => document.getElementById(id)?.classList.remove('error')); document.querySelectorAll('.field-error').forEach(e => e.classList.remove('show')); }
 
-    function clearErrors(...ids) {
-      ids.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) { el.classList.remove('error'); }
-      });
-      document.querySelectorAll('.field-error').forEach(e => e.classList.remove('show'));
-    }
-
-    /* ============================================================
-       TOAST SYSTEM
-    ============================================================ */
     function showToast(message, type = 'info') {
-      const container = document.getElementById('toast-container');
-      const icons = {
-        success: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
-        error:   `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
-        info:    `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4F8EF7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
-      };
-      const toast = document.createElement('div');
-      toast.className = `toast ${type}`;
-      toast.innerHTML = `${icons[type] || icons.info}<span>${message}</span>`;
-      container.appendChild(toast);
-      setTimeout(() => {
-        toast.classList.add('out');
-        setTimeout(() => toast.remove(), 320);
-      }, 3500);
+      const container = document.getElementById('toast-container'), toast = document.createElement('div');
+      toast.className = `toast ${type}`; toast.innerHTML = `<span>${message}</span>`;
+      container.appendChild(toast); setTimeout(() => { toast.classList.add('out'); setTimeout(() => toast.remove(), 320); }, 3500);
     }
 
-    /* ============================================================
-       BUTTON LOADING STATE
-    ============================================================ */
     function setLoading(btnId, spinnerId, textId, loading, label = 'Loading…') {
-      const btn  = document.getElementById(btnId);
-      const sp   = document.getElementById(spinnerId);
-      const txt  = document.getElementById(textId);
-      btn.disabled = loading;
-      sp.classList.toggle('show', loading);
-      txt.textContent = loading ? label : txt.dataset.default || txt.textContent;
+      const btn = document.getElementById(btnId), sp = document.getElementById(spinnerId), txt = document.getElementById(textId);
+      btn.disabled = loading; sp.classList.toggle('show', loading); txt.textContent = loading ? label : txt.dataset.default || txt.textContent;
     }
 
-    /* ============================================================
-       SIGN IN HANDLER
-    ============================================================ */
     async function handleSignIn() {
       clearErrors('si-email', 'si-password');
-      const email = document.getElementById('si-email').value.trim();
-      const pw    = document.getElementById('si-password').value;
-      let valid = true;
-
-      if (!email || !/\S+@\S+\.\S+/.test(email)) { setError('si-email', 'si-email-err', true, 'Please enter a valid email.'); valid = false; }
-      if (!pw)  { setError('si-password', 'si-pw-err', true, 'Please enter your password.'); valid = false; }
-      if (!valid) return;
-
+      const email = document.getElementById('si-email').value.trim(), pw = document.getElementById('si-password').value;
+      if (!email || !pw) return showToast('Fill all fields.', 'error');
       setLoading('si-submit-btn', 'si-spinner', 'si-btn-text', true, 'Signing in…');
-
       try {
-        const fd = new FormData();
-        fd.append('email', email);
-        fd.append('password', pw);
-        fd.append('remember', document.getElementById('si-remember').checked ? '1' : '0');
-
-        const res  = await fetch('../backend/login_process.php', { method: 'POST', body: fd, credentials: 'include' });
+        const fd = new FormData(); fd.append('email', email); fd.append('password', pw); fd.append('remember', document.getElementById('si-remember').checked ? '1' : '0');
+        const res = await fetch('../backend/login_process.php', { method: 'POST', body: fd, credentials: 'include' });
         const data = await res.json();
-
-        if (data.status === 'success') {
-          showToast('Welcome back! Redirecting…', 'success');
-          setTimeout(() => { window.location.href = 'dashboard.html'; }, 900);
-        } else {
-          showToast(data.message || 'Login failed. Please try again.', 'error');
-        }
-      } catch (err) {
-        showToast('Network error. Please check your connection.', 'error');
-      } finally {
-        setLoading('si-submit-btn', 'si-spinner', 'si-btn-text', false);
-        document.getElementById('si-btn-text').textContent = 'Sign In';
-      }
+        if (data.status === 'success') { showToast('Welcome back!', 'success'); setTimeout(() => window.location.href = 'dashboard.html', 900); } 
+        else showToast(data.message, 'error');
+      } catch (err) { showToast('Network error.', 'error'); } 
+      finally { setLoading('si-submit-btn', 'si-spinner', 'si-btn-text', false); document.getElementById('si-btn-text').textContent = 'Sign In'; }
     }
 
-    /* ============================================================
-       REGISTER HANDLER
-    ============================================================ */
     async function handleRegister() {
       clearErrors('rg-name','rg-email','rg-password','rg-confirm');
-      const name    = document.getElementById('rg-name').value.trim();
-      const email   = document.getElementById('rg-email').value.trim();
-      const pw      = document.getElementById('rg-password').value;
-      const confirm = document.getElementById('rg-confirm').value;
-      const role    = document.getElementById('rg-role').value;
-      const dept    = document.getElementById('rg-dept').value.trim();
-      let valid = true;
-
-      if (!name)                          { setError('rg-name', 'rg-name-err', true, 'Please enter your full name.'); valid = false; }
-      if (!email || !/\S+@\S+\.\S+/.test(email)) { setError('rg-email', 'rg-email-err', true, 'Please enter a valid email.'); valid = false; }
-      if (pwStrengthLevel < 2)            { setError('rg-password', 'rg-pw-err', true, 'Password must be at least moderate strength.'); valid = false; }
-      if (pw !== confirm)                 { setError('rg-confirm', 'rg-confirm-err', true, 'Passwords do not match.'); valid = false; }
-      if (!valid) return;
-
-      setLoading('rg-submit-btn', 'rg-spinner', 'rg-btn-text', true, 'Creating account…');
-
+      const name = document.getElementById('rg-name').value.trim(), email = document.getElementById('rg-email').value.trim(), pw = document.getElementById('rg-password').value, confirm = document.getElementById('rg-confirm').value, role = document.getElementById('rg-role').value;
+      if (!name || !email || pw !== confirm || pwStrengthLevel < 2) return showToast('Please check all fields.', 'error');
+      setLoading('rg-submit-btn', 'rg-spinner', 'rg-btn-text', true, 'Creating…');
       try {
-        const fd = new FormData();
-        fd.append('name', name);
-        fd.append('email', email);
-        fd.append('password', pw);
-        fd.append('role', role);
-        if (role === 'faculty') fd.append('department', dept);
-
-        const res  = await fetch('../backend/register_process.php', { method: 'POST', body: fd, credentials: 'include' });
+        const fd = new FormData(); fd.append('name', name); fd.append('email', email); fd.append('password', pw); fd.append('role', role); if(role==='faculty') fd.append('department', document.getElementById('rg-dept').value.trim());
+        const res = await fetch('../backend/register_process.php', { method: 'POST', body: fd, credentials: 'include' });
         const data = await res.json();
-
-        if (data.status === 'success') {
-          showToast('Account created! You can now sign in.', 'success');
-          setTimeout(() => switchTab('signin'), 1200);
-        } else {
-          showToast(data.message || 'Registration failed. Please try again.', 'error');
-        }
-      } catch (err) {
-        showToast('Network error. Please check your connection.', 'error');
-      } finally {
-        setLoading('rg-submit-btn', 'rg-spinner', 'rg-btn-text', false);
-        document.getElementById('rg-btn-text').textContent = 'Create Account';
-      }
+        if (data.status === 'success') { showToast('Account created!', 'success'); setTimeout(() => switchTab('signin'), 1200); } 
+        else showToast(data.message, 'error');
+      } catch (err) { showToast('Network error.', 'error'); } 
+      finally { setLoading('rg-submit-btn', 'rg-spinner', 'rg-btn-text', false); document.getElementById('rg-btn-text').textContent = 'Create Account'; }
     }
 
-    /* ============================================================
-       INPUT ENTER KEY — trigger submit
-    ============================================================ */
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        if (currentTab === 'signin') handleSignIn();
-        else handleRegister();
-      }
-    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Enter') { currentTab === 'signin' ? handleSignIn() : handleRegister(); } });
   </script>
 </body>
 </html>

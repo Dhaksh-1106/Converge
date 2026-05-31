@@ -9,15 +9,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 
   <style>
-    /* ============================================================
-       DESIGN TOKENS & RESET
-    ============================================================ */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
       --bg:           #080C14;
       --surface:      #0F1623;
-      --surface-2:    #111827;
+      --surface-2:    #151E2E;
       --border:       rgba(255,255,255,0.06);
       --border-hover: rgba(79,142,247,0.35);
       --accent:       #4F8EF7;
@@ -30,1525 +27,405 @@
       --radius-card:  16px;
       --radius-btn:   10px;
       --radius-pill:  999px;
-      --navbar-h:     60px;
-      --sidebar-w:    340px;
+      /* Adjusted Layout Widths */
+      --nav-w:        80px; 
+      --workspace-w:  340px;
     }
 
     html { scroll-behavior: smooth; }
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-    }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
 
-    /* ============================================================
-       SCROLLBAR
-    ============================================================ */
-    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 99px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
 
-    /* ============================================================
-       TOP NAVBAR
-    ============================================================ */
-    .navbar {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      height: var(--navbar-h);
-      z-index: 100;
-      background: rgba(8,12,20,0.85);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      padding: 0 24px;
-      gap: 16px;
-    }
-    .nav-brand {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      text-decoration: none;
-    }
-    .nav-brand-name {
-      font-size: 18px;
-      font-weight: 800;
-      letter-spacing: -0.4px;
-      background: linear-gradient(135deg, #F0F4FF 0%, #4F8EF7 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .nav-tagline {
-      flex: 1;
-      text-align: center;
-      font-size: 12px;
-      color: var(--muted);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-    .nav-right {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-left: auto;
-    }
-    .role-pill {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 12px;
-      background: rgba(79,142,247,0.1);
-      border: 1px solid rgba(79,142,247,0.25);
-      border-radius: var(--radius-pill);
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--accent);
-    }
-    .role-pill.faculty {
-      background: rgba(124,58,237,0.1);
-      border-color: rgba(124,58,237,0.3);
-      color: #a78bfa;
-    }
-    .role-dot {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 0 8px var(--accent);
-      animation: pulse-dot 2s ease-in-out infinite;
-    }
-    .role-pill.faculty .role-dot { background: #a78bfa; box-shadow: 0 0 8px #7C3AED; }
-    @keyframes pulse-dot { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
-    .nav-username {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text);
-    }
-    .btn-disconnect {
-      padding: 7px 16px;
-      background: rgba(239,68,68,0.1);
-      border: 1px solid rgba(239,68,68,0.25);
-      border-radius: var(--radius-btn);
-      font-family: 'Inter', sans-serif;
-      font-size: 12.5px;
-      font-weight: 600;
-      color: #EF4444;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    .btn-disconnect:hover {
-      background: rgba(239,68,68,0.2);
-      border-color: rgba(239,68,68,0.5);
-    }
+    .app-container { display: flex; min-height: 100vh; width: 100vw; }
 
-    /* ============================================================
-       PAGE LAYOUT
-    ============================================================ */
-    .page-body {
-      padding-top: var(--navbar-h);
-      min-height: 100vh;
-    }
-    .page-grid {
-      display: grid;
-      grid-template-columns: 1fr var(--sidebar-w);
-      gap: 24px;
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 28px 24px;
-      align-items: start;
-    }
+    /* Collapsed Left Navigation Rail */
+    .sidebar-nav { width: var(--nav-w); background: rgba(11, 16, 27, 0.8); border-right: 1px solid var(--border); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); display: flex; flex-direction: column; align-items: center; position: fixed; top: 0; bottom: 0; left: 0; z-index: 200; padding: 24px 12px; }
+    .nav-brand { display: flex; justify-content: center; text-decoration: none; margin-bottom: 32px; }
+    
+    /* Hide text labels entirely on the slim rail */
+    .nav-brand-name, .nav-menu-header, .account-info, .role-badge-container { display: none; }
+    
+    .nav-links { display: flex; flex-direction: column; gap: 12px; flex: 1; width: 100%; }
+    .nav-item { display: flex; align-items: center; justify-content: center; padding: 12px; background: transparent; border: 1px solid transparent; border-radius: var(--radius-btn); color: var(--muted); cursor: pointer; transition: all 0.2s ease; width: 100%; }
+    .nav-item span { display: none; }
+    .nav-item:hover, .nav-item.active { color: var(--text); background: rgba(255, 255, 255, 0.03); border-color: var(--border); }
+    .nav-item.active { border-color: rgba(79, 142, 247, 0.2); background: rgba(79, 142, 247, 0.05); color: var(--accent); }
 
-    /* ============================================================
-       CARDS / SURFACES
-    ============================================================ */
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-card);
-      padding: 22px;
-    }
-    .card-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text);
-      letter-spacing: -0.2px;
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+    .main-workspace { flex: 1; margin-left: var(--nav-w); margin-right: var(--workspace-w); padding: 32px 40px; transition: margin-right 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .main-workspace.expanded { margin-right: 0; }
 
-    /* ============================================================
-       SEARCH BAR
-    ============================================================ */
-    .search-wrap {
-      display: flex;
-      align-items: center;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-pill);
-      padding: 4px 4px 4px 16px;
-      margin-bottom: 24px;
-      gap: 10px;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .search-wrap:focus-within {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(79,142,247,0.12);
-    }
-    .search-icon { color: var(--muted); flex-shrink: 0; display: flex; align-items: center; }
-    .search-input {
-      flex: 1;
-      background: transparent;
-      border: none;
-      outline: none;
-      font-family: 'Inter', sans-serif;
-      font-size: 14px;
-      color: var(--text);
-    }
+    .view-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; gap: 16px; }
+    .view-title-area h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.6px; }
+    .view-title-area p { font-size: 13px; color: var(--muted); margin-top: 4px; }
+    .toggle-workspace-btn { padding: 9px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-btn); color: var(--text); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; }
+    .toggle-workspace-btn:hover { border-color: var(--accent); background: rgba(79, 142, 247, 0.05); }
+
+    .search-wrap { display: flex; align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-pill); padding: 6px 6px 6px 16px; margin-bottom: 28px; gap: 12px; transition: all 0.2s ease; }
+    .search-wrap:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,142,247,0.12); }
+    .search-input { flex: 1; background: transparent; border: none; outline: none; font-family: 'Inter', sans-serif; font-size: 14px; color: var(--text); }
     .search-input::placeholder { color: var(--muted); }
-    .btn-query {
-      padding: 9px 20px;
-      background: var(--accent);
-      border: none;
-      border-radius: var(--radius-pill);
-      font-family: 'Inter', sans-serif;
-      font-size: 13px;
-      font-weight: 700;
-      color: #fff;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      display: flex; align-items: center; gap: 6px;
-    }
-    .btn-query:hover { background: #6BA3F9; box-shadow: 0 0 16px var(--accent-glow); }
 
-    /* ============================================================
-       PROJECT CARDS GRID
-    ============================================================ */
-    .projects-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-    .project-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-card);
-      padding: 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      cursor: pointer;
-      transition: all 0.22s ease;
-      position: relative;
-    }
-    .project-card:hover {
-      transform: translateY(-4px);
-      border-color: var(--border-hover);
-      box-shadow: 0 8px 32px rgba(79,142,247,0.12);
-    }
-    .project-card-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 8px;
-    }
-    .project-title {
-      font-size: 14.5px;
-      font-weight: 700;
-      color: var(--text);
-      line-height: 1.4;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-    .status-badge {
-      flex-shrink: 0;
-      padding: 3px 10px;
-      border-radius: var(--radius-pill);
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-    }
-    .status-badge.approved {
-      background: rgba(34,197,94,0.12);
-      color: var(--success);
-      border: 1px solid rgba(34,197,94,0.25);
-      box-shadow: 0 0 10px rgba(34,197,94,0.1);
-    }
-    .project-desc {
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.6;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      position: relative;
-    }
+    /* Responsive Grid allowing more cards per row */
+    .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-bottom: 32px; }
+
+    .project-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-card); padding: 20px; display: flex; flex-direction: column; gap: 12px; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+    .project-card:hover { transform: translateY(-4px); border-color: var(--border-hover); box-shadow: 0 12px 40px rgba(79,142,247,0.08); }
+    .project-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .project-title { font-size: 14.5px; font-weight: 700; color: var(--text); line-height: 1.4; }
+    .status-badge { padding: 4px 8px; border-radius: var(--radius-pill); font-size: 10px; font-weight: 700; }
+    .status-badge.approved { background: rgba(34,197,94,0.1); color: var(--success); border: 1px solid rgba(34,197,94,0.2); }
+    .project-desc { font-size: 12.5px; color: var(--muted); line-height: 1.6; display: -webkit-box; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
     .tags-row { display: flex; flex-wrap: wrap; gap: 6px; }
-    .tag-pill {
-      padding: 3px 10px;
-      border-radius: var(--radius-pill);
-      font-size: 11.5px;
-      font-weight: 600;
-    }
-    /* Tag color variants */
-    .tag-v0 { background: rgba(79,142,247,0.12); color: #7ab3ff; border: 1px solid rgba(79,142,247,0.2); }
-    .tag-v1 { background: rgba(124,58,237,0.12); color: #c4b5fd; border: 1px solid rgba(124,58,237,0.2); }
-    .tag-v2 { background: rgba(245,158,11,0.12); color: #fcd34d; border: 1px solid rgba(245,158,11,0.2); }
-    .tag-v3 { background: rgba(34,197,94,0.12);  color: #86efac; border: 1px solid rgba(34,197,94,0.2);  }
+    .tag-pill { padding: 3px 8px; border-radius: var(--radius-pill); font-size: 10.5px; font-weight: 600; }
+    .tag-v0 { background: rgba(79,142,247,0.08); color: #7ab3ff; } .tag-v1 { background: rgba(124,58,237,0.08); color: #c4b5fd; } .tag-v2 { background: rgba(245,158,11,0.08); color: #fcd34d; } .tag-v3 { background: rgba(34,197,94,0.08); color: #86efac; }
+    .card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.03); }
+    .member-chip { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+    .btn-join { padding: 7px 14px; background: rgba(79,142,247,0.1); border: 1px solid rgba(79,142,247,0.2); border-radius: var(--radius-pill); font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 700; color: var(--accent); cursor: pointer; transition: all 0.2s; }
+    .btn-join:hover:not(:disabled) { background: var(--accent); color: #fff; }
+    .btn-join.joined { background: rgba(34,197,94,0.06); border-color: rgba(34,197,94,0.15); color: var(--success); }
 
-    .card-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 4px;
-    }
-    .member-chip {
-      font-size: 12.5px;
-      color: var(--muted);
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .btn-join {
-      padding: 7px 16px;
-      background: rgba(79,142,247,0.12);
-      border: 1px solid rgba(79,142,247,0.3);
-      border-radius: var(--radius-pill);
-      font-family: 'Inter', sans-serif;
-      font-size: 12.5px;
-      font-weight: 700;
-      color: var(--accent);
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    .btn-join:hover:not(:disabled) {
-      background: var(--accent);
-      color: #fff;
-      box-shadow: 0 0 16px var(--accent-glow);
-    }
-    .btn-join.joined {
-      background: rgba(34,197,94,0.1);
-      border-color: rgba(34,197,94,0.25);
-      color: var(--success);
-      cursor: default;
-    }
-    .btn-join:disabled { cursor: default; }
+    .workspace-pane { width: var(--workspace-w); background: rgba(15, 22, 35, 0.7); border-left: 1px solid var(--border); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); position: fixed; top: 0; bottom: 0; right: 0; z-index: 200; display: flex; flex-direction: column; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .workspace-pane.closed { transform: translateX(100%); }
+    .workspace-tabs { display: flex; border-bottom: 1px solid var(--border); background: rgba(8, 12, 20, 0.4); padding: 12px 16px 0; gap: 4px; }
+    .w-tab { padding: 10px 14px; color: var(--muted); font-size: 12px; font-weight: 700; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
+    .w-tab:hover { color: var(--text); }
+    .w-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .workspace-content { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; }
+    .w-panel { display: none; height: 100%; flex-direction: column; }
+    .w-panel.active { display: flex; }
 
-    /* ============================================================
-       SKELETON LOADERS
-    ============================================================ */
-    @keyframes shimmer {
-      0%   { background-position: -600px 0; }
-      100% { background-position:  600px 0; }
-    }
-    .skeleton {
-      background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.09) 50%, rgba(255,255,255,0.04) 75%);
-      background-size: 600px 100%;
-      animation: shimmer 1.5s infinite;
-      border-radius: 8px;
-    }
-    .skeleton-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-card);
-      padding: 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .sk-line { height: 12px; }
-    .sk-line.short { width: 45%; }
-    .sk-line.long  { width: 85%; }
-    .sk-line.medium { width: 65%; }
-    .sk-block { height: 60px; }
+    .panel-header-title { font-size: 14px; font-weight: 700; margin-bottom: 16px; color: var(--text); display: flex; align-items: center; gap: 8px; }
+    .assistant-panel-inner { display: flex; flex-direction: column; height: 100%; flex: 1; }
+    .assistant-messages { flex: 1; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; padding-right: 4px; margin-bottom: 16px; min-height: 240px; }
+    .assistant-message { max-width: 90%; line-height: 1.5; white-space: pre-wrap; word-break: break-word; padding: 10px 14px; border-radius: 12px; font-size: 12.5px; }
+    .assistant-message.assistant { align-self: flex-start; background: var(--surface-2); border: 1px solid var(--border); color: var(--text); border-top-left-radius: 4px; }
+    .assistant-message.user { align-self: flex-end; background: rgba(79, 142, 247, 0.12); border: 1px solid rgba(79, 142, 247, 0.2); color: var(--text); border-top-right-radius: 4px; }
+    .assistant-input-row { display: flex; gap: 8px; align-items: center; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-card); padding: 8px 10px; }
+    .assistant-input { flex: 1; background: transparent; border: none; color: var(--text); resize: none; font-family: 'Inter', sans-serif; font-size: 13px; outline: none; max-height: 80px; }
 
-    /* ============================================================
-       PAGINATION
-    ============================================================ */
-    .pagination {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      margin-top: 8px;
-    }
-    .page-btn {
-      min-width: 36px; height: 36px;
-      display: flex; align-items: center; justify-content: center;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      font-family: 'Inter', sans-serif;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--muted);
-      cursor: pointer;
-      transition: all 0.2s ease;
-      padding: 0 10px;
-    }
-    .page-btn:hover:not(:disabled):not(.active) {
-      border-color: var(--border-hover);
-      color: var(--text);
-    }
-    .page-btn.active {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #fff;
-      box-shadow: 0 0 14px var(--accent-glow);
-    }
-    .page-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .form-input, .form-textarea { width: 100%; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-family: 'Inter', sans-serif; font-size: 13px; color: var(--text); outline: none; transition: all 0.2s; margin-bottom: 12px; }
+    .form-input:focus, .form-textarea:focus { border-color: var(--accent); }
+    .form-textarea { min-height: 120px; resize: vertical; }
 
-    /* ============================================================
-       EMPTY STATE
-    ============================================================ */
-    .empty-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 14px;
-      padding: 60px 20px;
-      grid-column: 1 / -1;
-    }
-    .empty-state h3 { font-size: 16px; font-weight: 700; color: var(--text); }
-    .empty-state p  { font-size: 13px; color: var(--muted); text-align: center; max-width: 280px; line-height: 1.6; }
+    /* Account Bar Adjusted for Slim Rail */
+    .sidebar-account { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; }
+    .account-row { display: flex; justify-content: center; width: 100%; }
+    .account-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, rgba(79,142,247,0.3), rgba(124,58,237,0.3)); border: 1px solid rgba(79,142,247,0.3); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; color: var(--accent); }
+    .btn-disconnect { width: 36px; height: 36px; padding: 0; display: flex; align-items: center; justify-content: center; background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.15); border-radius: 8px; color: #EF4444; cursor: pointer; transition: all 0.2s; }
+    .btn-disconnect span { display: none; }
+    .btn-disconnect:hover { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.3); }
 
-    /* ============================================================
-       DETAILS MODAL
-    ============================================================ */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.7);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      z-index: 500;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-    .modal-overlay.open {
-      display: flex;
-      animation: fadeIn 0.2s ease;
-    }
-    @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
-    .modal {
-      background: var(--surface);
-      border: 1px solid rgba(79,142,247,0.2);
-      border-radius: 20px;
-      width: 100%;
-      max-width: 560px;
-      max-height: 80vh;
-      overflow-y: auto;
-      padding: 28px;
-      animation: modalIn 0.25s cubic-bezier(0.34,1.2,0.64,1);
-      position: relative;
-    }
-    @keyframes modalIn { from { opacity:0; transform:scale(0.92); } to { opacity:1; transform:scale(1); } }
-    .modal-close {
-      position: absolute;
-      top: 16px; right: 16px;
-      width: 32px; height: 32px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      color: var(--muted);
-    }
-    .modal-close:hover { background: rgba(255,255,255,0.1); color: var(--text); }
-    .modal-title { font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 12px; padding-right: 40px; }
-    .modal-desc  { font-size: 13.5px; color: var(--muted); line-height: 1.7; margin-bottom: 18px; }
-    .modal-meta  { font-size: 12.5px; color: var(--muted); }
-    .modal-meta strong { color: var(--text); }
-    .modal-section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 16px 0 8px; }
-    .collaborator-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
-    .collaborator-item {
-      display: flex; align-items: center; gap: 8px;
-      font-size: 13px; color: var(--text);
-    }
-    .collaborator-avatar {
-      width: 28px; height: 28px;
-      border-radius: 50%;
-      background: rgba(79,142,247,0.2);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 11px; font-weight: 700; color: var(--accent);
-    }
-
-    /* ============================================================
-       SIDEBAR — PROPOSAL SUBMISSION
-    ============================================================ */
-    .sidebar { display: flex; flex-direction: column; gap: 16px; }
-
-    .accent-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-left: 3px solid var(--accent);
-      border-radius: var(--radius-card);
-      padding: 20px;
-    }
-    .accent-card.warning { border-left-color: var(--warning); }
-
-    .form-input, .form-textarea {
-      width: 100%;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px 13px;
-      font-family: 'Inter', sans-serif;
-      font-size: 13.5px;
-      color: var(--text);
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-      margin-bottom: 10px;
-    }
-    .form-input::placeholder, .form-textarea::placeholder { color: var(--muted); }
-    .form-input:focus, .form-textarea:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(79,142,247,0.12);
-    }
-    .form-textarea { resize: vertical; min-height: 80px; }
-
-    .btn-submit-proposal {
-      width: 100%;
-      padding: 11px;
-      background: var(--accent);
-      border: none;
-      border-radius: var(--radius-btn);
-      font-family: 'Inter', sans-serif;
-      font-size: 13.5px;
-      font-weight: 700;
-      color: #fff;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-      position: relative; overflow: hidden;
-    }
-    .btn-submit-proposal::before {
-      content: '';
-      position: absolute; top:0; left:-100%;
-      width:60%; height:100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
-      transition: left 0.4s ease;
-    }
-    .btn-submit-proposal:hover:not(:disabled)::before { left: 140%; }
-    .btn-submit-proposal:hover:not(:disabled) {
-      background: #6BA3F9;
-      box-shadow: 0 0 20px var(--accent-glow);
-    }
-    .btn-submit-proposal:disabled { opacity: 0.6; cursor: not-allowed; }
-    .btn-spinner-sm {
-      display: none;
-      width: 14px; height: 14px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-    }
-    .btn-spinner-sm.show { display: block; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ============================================================
-       MODERATION QUEUE (Faculty)
-    ============================================================ */
     .pending-list { display: flex; flex-direction: column; gap: 10px; }
-    .pending-item {
-      background: rgba(255,255,255,0.02);
-      border: 1px solid var(--border);
-      border-left: 3px solid var(--warning);
-      border-radius: 12px;
-      padding: 12px 14px;
-      transition: all 0.35s ease;
-    }
-    .pending-item.removing {
-      opacity: 0;
-      transform: scaleY(0);
-      transform-origin: top;
-      max-height: 0;
-      padding: 0;
-      margin: 0;
-      border: none;
-    }
-    .pending-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
-    .pending-meta  { font-size: 12px; color: var(--muted); margin-bottom: 10px; line-height: 1.5; }
-    .pending-actions { display: flex; gap: 8px; }
-    .btn-authorize, .btn-reject {
-      flex: 1;
-      padding: 7px;
-      border: 1px solid;
-      border-radius: 8px;
-      font-family: 'Inter', sans-serif;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    .btn-authorize {
-      background: rgba(34,197,94,0.1);
-      border-color: rgba(34,197,94,0.25);
-      color: var(--success);
-    }
-    .btn-authorize:hover { background: rgba(34,197,94,0.2); border-color: var(--success); }
-    .btn-reject {
-      background: rgba(239,68,68,0.1);
-      border-color: rgba(239,68,68,0.25);
-      color: var(--danger);
-    }
-    .btn-reject:hover { background: rgba(239,68,68,0.2); border-color: var(--danger); }
+    .pending-item { background: var(--surface-2); border: 1px solid var(--border); border-left: 3px solid var(--warning); border-radius: 10px; padding: 12px; }
+    .pending-title { font-size: 13px; font-weight: 700; color: var(--text); }
+    .pending-meta { font-size: 11.5px; color: var(--muted); margin: 4px 0 10px; line-height: 1.4; }
+    .pending-actions { display: flex; gap: 6px; }
 
-    .all-clear {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      padding: 20px 0 8px;
-      color: var(--muted);
-      font-size: 13px;
-    }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(5, 7, 12, 0.8); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 500; display: none; align-items: center; justify-content: center; padding: 24px; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; width: 100%; max-width: 540px; max-height: 85vh; overflow-y: auto; padding: 28px; position: relative; }
+    .modal-close { position: absolute; top: 16px; right: 16px; width: 28px; height: 28px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--muted); }
+    .modal-title { font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 10px; padding-right: 32px; }
+    .modal-desc { font-size: 13.5px; color: var(--muted); line-height: 1.6; margin-bottom: 20px; }
+    .modal-section-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 16px 0 8px; }
+    .collaborator-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .collaborator-item { display: flex; align-items: center; gap: 8px; font-size: 12.5px; }
+    .collaborator-avatar { width: 26px; height: 26px; border-radius: 50%; background: rgba(79,142,247,0.15); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: var(--accent); }
 
-    /* ============================================================
-       ACCOUNT SUMMARY CARD
-    ============================================================ */
-    .account-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-card);
-      padding: 18px;
-    }
-    .account-row {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-    .account-avatar {
-      width: 44px; height: 44px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, rgba(79,142,247,0.3), rgba(124,58,237,0.3));
-      border: 1px solid rgba(79,142,247,0.3);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 17px; font-weight: 800; color: var(--accent);
-      flex-shrink: 0;
-    }
-    .account-info { flex: 1; min-width: 0; }
-    .account-name { font-size: 14px; font-weight: 700; color: var(--text); }
-    .account-email { font-size: 12px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .account-role-badge {
-      margin-top: 6px;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 3px 10px;
-      border-radius: var(--radius-pill);
-      font-size: 11px;
-      font-weight: 700;
-    }
-    .account-role-badge.student { background: rgba(79,142,247,0.1); color: var(--accent); border: 1px solid rgba(79,142,247,0.2); }
-    .account-role-badge.faculty { background: rgba(124,58,237,0.1); color: #a78bfa; border: 1px solid rgba(124,58,237,0.2); }
+    .skeleton-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-card); padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+    .skeleton { background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%); background-size: 600px 100%; animation: shimmer 1.5s infinite; border-radius: 6px; }
+    @keyframes shimmer { 0% { background-position: -600px 0; } 100% { background-position: 600px 0; } }
+    .sk-line { height: 10px; } .sk-line.short { width: 40%; } .sk-line.long { width: 90%; } .sk-block { height: 60px; }
 
-    .assistant-card {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      min-height: 380px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-card);
-      padding: 18px;
-    }
-    .assistant-messages {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      overflow-y: auto;
-      padding-right: 4px;
-      min-height: 180px;
-      max-height: 320px;
-    }
-    .assistant-message {
-      max-width: 100%;
-      line-height: 1.6;
-      white-space: pre-wrap;
-      word-break: break-word;
-      padding: 12px 14px;
-      border-radius: 18px;
-      font-size: 13px;
-      border: 1px solid transparent;
-    }
-    .assistant-message.assistant {
-      align-self: flex-start;
-      background: rgba(79,142,247,0.08);
-      border-color: rgba(79,142,247,0.16);
-      color: var(--text);
-    }
-    .assistant-message.user {
-      align-self: flex-end;
-      background: rgba(255,255,255,0.06);
-      border-color: rgba(255,255,255,0.1);
-      color: var(--text);
-    }
-    .assistant-input-row {
-      display: flex;
-      gap: 10px;
-      align-items: flex-end;
-    }
-    .assistant-input {
-      flex: 1;
-      min-height: 44px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      padding: 12px 16px;
-      background: rgba(255,255,255,0.04);
-      color: var(--text);
-      resize: none;
-      font-family: 'Inter', sans-serif;
-      font-size: 13px;
-    }
-    .assistant-input:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(79,142,247,0.12);
-    }
-    .assistant-btn {
-      padding: 12px 16px;
-      border-radius: var(--radius-pill);
-      border: none;
-      background: var(--accent);
-      color: #fff;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      white-space: nowrap;
-    }
-    .assistant-btn:disabled {
-      opacity: 0.65;
-      cursor: not-allowed;
-    }
+    #toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column-reverse; gap: 8px; pointer-events: none; }
+    .toast { pointer-events: auto; display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: var(--radius-pill); font-size: 12.5px; font-weight: 500; background: var(--surface); border: 1px solid var(--border); box-shadow: 0 8px 32px rgba(0,0,0,0.5); white-space: nowrap; animation: toastIn 0.3s forwards; }
+    .toast.out { animation: toastOut 0.25s ease forwards; }
+    @keyframes toastIn { from { opacity:0; transform: translateX(30px); } to { opacity:1; transform: translateX(0); } }
+    @keyframes toastOut { from { opacity:1; transform: translateX(0); } to { opacity:0; transform: translateX(30px); } }
 
-    /* ============================================================
-       TOAST SYSTEM (bottom-right, stackable)
-    ============================================================ */
-    #toast-container {
-      position: fixed;
-      bottom: 28px; right: 28px;
-      z-index: 9999;
-      display: flex;
-      flex-direction: column-reverse;
-      gap: 8px;
-      pointer-events: none;
-    }
-    .toast {
-      pointer-events: auto;
-      display: flex;
-      flex-direction: column;
-      min-width: 260px;
-      max-width: 340px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-      overflow: hidden;
-      animation: toastSlideIn 0.3s cubic-bezier(0.34,1.2,0.64,1) forwards;
-    }
-    .toast.out { animation: toastSlideOut 0.28s ease forwards; }
-    @keyframes toastSlideIn  { from { opacity:0; transform: translateX(30px); } to { opacity:1; transform: translateX(0); } }
-    @keyframes toastSlideOut { from { opacity:1; transform: translateX(0); }    to { opacity:0; transform: translateX(30px); } }
-    .toast-body {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      padding: 12px 14px 10px;
-    }
-    .toast-icon { flex-shrink: 0; margin-top: 1px; }
-    .toast-msg  { font-size: 13px; font-weight: 500; color: var(--text); line-height: 1.5; }
-    .toast-progress {
-      height: 3px;
-      width: 100%;
-      border-radius: 0;
-    }
-    .toast.success .toast-progress { background: var(--success); }
-    .toast.error   .toast-progress { background: var(--danger); }
-    .toast.info    .toast-progress { background: var(--accent); }
-    .toast-progress-inner {
-      height: 100%;
-      width: 100%;
-      animation: shrink 3.5s linear forwards;
-    }
-    .toast.success .toast-progress-inner { background: var(--success); opacity: 0.6; }
-    .toast.error   .toast-progress-inner { background: var(--danger); opacity: 0.6; }
-    .toast.info    .toast-progress-inner { background: var(--accent); opacity: 0.6; }
-    @keyframes shrink { from { width:100%; } to { width:0%; } }
+    .pagination { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 16px; }
+    .page-btn { min-width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 12.5px; font-weight: 600; color: var(--muted); cursor: pointer; transition: all 0.2s; padding: 0 10px; }
+    .page-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
 
-    /* ============================================================
-       RESPONSIVE
-    ============================================================ */
-    @media (max-width: 900px) {
-      .page-grid { grid-template-columns: 1fr; }
-      .projects-grid { grid-template-columns: 1fr; }
-      .nav-tagline { display: none; }
-    }
-    @media (max-width: 600px) {
-      .nav-username { display: none; }
-      .navbar { padding: 0 14px; }
-      .page-grid { padding: 16px; }
+    .empty-state { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 60px 20px; grid-column: 1 / -1; text-align: center; }
+    .empty-state h3 { font-size: 15px; font-weight: 700; }
+    .empty-state p { font-size: 12.5px; color: var(--muted); max-width: 280px; line-height: 1.6; }
+
+    @media (max-width: 1024px) {
+      .main-workspace { margin-right: 0; }
+      .workspace-pane { transform: translateX(100%); box-shadow: -10px 0 40px rgba(0,0,0,0.6); }
+      .workspace-pane.closed { transform: translateX(100%); }
+      .workspace-pane.open { transform: translateX(0); }
     }
   </style>
 </head>
 <body>
 
-  <!-- ====================== TOAST CONTAINER ====================== -->
-  <div id="toast-container"></div>
+  <div class="app-container">
+    
+    <!-- Slim Icon-Only Navigation -->
+    <aside class="sidebar-nav">
+      <a class="nav-brand" href="#" style="flex-direction: column; align-items: center; gap: 6px;">
+        <svg width="24" height="24" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="17" r="9" fill="none" stroke="#4F8EF7" stroke-width="2"/>
+          <circle cx="22" cy="17" r="9" fill="none" stroke="#7C3AED" stroke-width="2"/>
+        </svg>
+        <span style="font-size: 9px; font-weight: 800; letter-spacing: 0.1em; color: var(--accent);">CONVERGE</span>
+      </a>
 
-  <!-- ====================== DETAILS MODAL ====================== -->
+      <nav class="nav-links">
+        <a href="#" class="nav-item active" title="Dashboard">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        </a>
+      </nav>
+
+      <div class="sidebar-account">
+        <div class="account-row">
+          <div class="account-avatar" id="account-avatar">?</div>
+        </div>
+        <button class="btn-disconnect" onclick="handleLogout()" title="Disconnect">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
+      </div>
+    </aside>
+
+    <main class="main-workspace" id="main-workspace">
+      <header class="view-header">
+        <div class="view-title-area">
+          <h1>Research Workspace</h1>
+          <p>Explore and join active project proposals across the network.</p>
+        </div>
+        <div class="header-actions">
+          <button class="toggle-workspace-btn" onclick="toggleWorkspacePane()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+            <span>Toggle Panels</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="search-wrap">
+        <input type="text" class="search-input" id="search-input" placeholder="Search proposals by title, key terms, tags..." onkeydown="if(event.key==='Enter') handleSearch()" />
+        <button class="btn-query btn-join" style="padding: 6px 16px" onclick="handleSearch()">Query</button>
+      </div>
+
+      <div class="projects-grid" id="projects-grid">
+        <div class="skeleton-card"><div class="skeleton sk-line short"></div><div class="skeleton sk-block"></div><div class="skeleton sk-line long"></div></div>
+        <div class="skeleton-card"><div class="skeleton sk-line short"></div><div class="skeleton sk-block"></div><div class="skeleton sk-line long"></div></div>
+      </div>
+
+      <div class="pagination" id="pagination"></div>
+    </main>
+
+    <aside class="workspace-pane" id="workspace-pane">
+      <div class="workspace-tabs">
+        <div class="w-tab active" onclick="switchWorkspaceTab('tab-ai', this)">Assistant</div>
+        <div class="w-tab" onclick="switchWorkspaceTab('tab-submit', this)">Propose</div>
+        <div class="w-tab" id="moderation-tab-header" style="display:none" onclick="switchWorkspaceTab('tab-mod', this)">Queue</div>
+      </div>
+
+      <div class="workspace-content">
+        <div class="w-panel active" id="tab-ai">
+          <div class="assistant-panel-inner">
+            <div class="panel-header-title">AI Research Assistant</div>
+            <div class="assistant-messages" id="assistant-messages">
+              <div class="assistant-message assistant">Hi! Ask me for project ideas, collaboration tips, or help using the Converge platform.</div>
+            </div>
+            <div class="assistant-input-row">
+              <textarea id="assistant-input" class="assistant-input" placeholder="Ask about research..." rows="1" onkeydown="if(event.key==='Enter' && !event.shiftKey){ event.preventDefault(); handleAssistantSend(); }"></textarea>
+              <button class="btn-join" id="assistant-send-btn" onclick="handleAssistantSend()">Send</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="w-panel" id="tab-submit">
+          <div class="panel-header-title">Submit Project Proposal</div>
+          <input type="text" class="form-input" id="prop-title" placeholder="Project title..." />
+          <textarea class="form-textarea" id="prop-desc" placeholder="Describe the structural goals, methods, and expected results..."></textarea>
+          <input type="text" class="form-input" id="prop-tags" placeholder="Tags: e.g. AI, Quantum, Cryptography" />
+          <button class="btn-join" id="prop-submit-btn" style="width: 100%; text-align: center;" onclick="handleProposalSubmit()">
+            <span id="prop-btn-text">Submit Proposal</span>
+          </button>
+        </div>
+
+        <div class="w-panel" id="tab-mod">
+          <div class="panel-header-title" style="color:var(--warning)">Moderation Queue</div>
+          <div class="pending-list" id="pending-list"></div>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
   <div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
     <div class="modal" id="modal-box">
-      <button class="modal-close" onclick="closeModal()" aria-label="Close">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-      <h2 class="modal-title" id="modal-title">Project Title</h2>
+      <button class="modal-close" onclick="closeModal()">×</button>
+      <h2 class="modal-title" id="modal-title">Project Details</h2>
       <div class="tags-row" id="modal-tags" style="margin-bottom:16px"></div>
       <p class="modal-desc" id="modal-desc"></p>
-      <div class="modal-section-title">Project Details</div>
-      <div class="modal-meta">
-        <div><strong>Submitted:</strong> <span id="modal-date"></span></div>
-        <div style="margin-top:4px"><strong>Approved by:</strong> <span id="modal-faculty"></span></div>
+      <div class="modal-section-title">Audit Information</div>
+      <div class="modal-meta" style="font-size: 12px; color: var(--muted);">
+        <div><strong style="color:var(--text)">Submitted:</strong> <span id="modal-date">—</span></div>
+        <div style="margin-top:4px"><strong style="color:var(--text)">Approved by:</strong> <span id="modal-faculty">—</span></div>
       </div>
       <div class="modal-section-title">Collaborators</div>
       <ul class="collaborator-list" id="modal-collaborators"></ul>
     </div>
   </div>
 
-  <!-- ====================== NAVBAR ====================== -->
-  <nav class="navbar">
-    <a class="nav-brand" href="#">
-      <svg width="30" height="30" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="12" cy="17" r="9" fill="none" stroke="#4F8EF7" stroke-width="2" opacity="0.9"/>
-        <circle cx="22" cy="17" r="9" fill="none" stroke="#7C3AED" stroke-width="2" opacity="0.9"/>
-        <circle cx="5"  cy="17" r="2" fill="#4F8EF7"/>
-        <circle cx="17" cy="10" r="2" fill="#8B6EF7"/>
-        <circle cx="17" cy="24" r="2" fill="#8B6EF7"/>
-        <circle cx="29" cy="17" r="2" fill="#7C3AED"/>
-      </svg>
-      <span class="nav-brand-name">Converge</span>
-    </a>
-    <div class="nav-tagline">Research Network</div>
-    <div class="nav-right">
-      <div class="role-pill" id="nav-role-pill">
-        <div class="role-dot"></div>
-        <span id="nav-role-label">—</span>
-      </div>
-      <span class="nav-username" id="nav-username">—</span>
-      <button class="btn-disconnect" onclick="handleLogout()">Disconnect</button>
-    </div>
-  </nav>
-
-  <!-- ====================== PAGE BODY ====================== -->
-  <div class="page-body">
-    <div class="page-grid">
-
-      <!-- ============= MAIN FEED ============= -->
-      <main>
-        <!-- Search -->
-        <div class="search-wrap">
-          <div class="search-icon">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          </div>
-          <input type="text" class="search-input" id="search-input" placeholder="Search projects by title, tag, or description…" onkeydown="if(event.key==='Enter') handleSearch()" />
-          <button class="btn-query" onclick="handleSearch()">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            Query
-          </button>
-        </div>
-
-        <!-- Project grid -->
-        <div class="projects-grid" id="projects-grid">
-          <!-- Skeleton loaders -->
-          <div class="skeleton-card">
-            <div class="skeleton sk-line short"></div>
-            <div class="skeleton sk-block"></div>
-            <div class="skeleton sk-line long"></div>
-            <div class="skeleton sk-line medium"></div>
-          </div>
-          <div class="skeleton-card">
-            <div class="skeleton sk-line short"></div>
-            <div class="skeleton sk-block"></div>
-            <div class="skeleton sk-line long"></div>
-            <div class="skeleton sk-line medium"></div>
-          </div>
-          <div class="skeleton-card">
-            <div class="skeleton sk-line short"></div>
-            <div class="skeleton sk-block"></div>
-            <div class="skeleton sk-line long"></div>
-            <div class="skeleton sk-line medium"></div>
-          </div>
-        </div>
-
-        <!-- Pagination -->
-        <div class="pagination" id="pagination"></div>
-      </main>
-
-      <!-- ============= SIDEBAR ============= -->
-      <aside class="sidebar">
-
-        <!-- Proposal Submission -->
-        <div class="accent-card">
-          <div class="card-title">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Submit Proposal
-          </div>
-          <input type="text" class="form-input" id="prop-title" placeholder="Project title…" />
-          <textarea class="form-textarea" id="prop-desc" placeholder="Describe your research idea…"></textarea>
-          <input type="text" class="form-input" id="prop-tags" placeholder="Tags: e.g. AI, IoT, Robotics" />
-          <button class="btn-submit-proposal" id="prop-submit-btn" onclick="handleProposalSubmit()">
-            <div class="btn-spinner-sm" id="prop-spinner"></div>
-            <span id="prop-btn-text">Submit Proposal</span>
-          </button>
-        </div>
-
-        <!-- Moderation Queue — injected if faculty -->
-        <div id="moderation-card" style="display:none">
-          <div class="accent-card warning">
-            <div class="card-title" style="color:var(--warning)">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-              Moderation Queue
-            </div>
-            <div class="pending-list" id="pending-list">
-              <!-- populated by JS -->
-            </div>
-          </div>
-        </div>
-
-        <!-- AI Research Assistant -->
-        <div class="assistant-card">
-          <div class="card-title">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16z"/><path d="M8 14l4-4 4 4"/><path d="M12 10v6"/></svg>
-            AI Research Assistant
-          </div>
-          <div class="assistant-messages" id="assistant-messages">
-            <div class="assistant-message assistant">Hi! Ask me for project ideas, collaboration tips, or help using the Converge platform.</div>
-          </div>
-          <div class="assistant-input-row">
-            <textarea id="assistant-input" class="assistant-input" placeholder="Ask the assistant about projects, research, or platform help..." rows="2" onkeydown="if(event.key==='Enter' && !event.shiftKey){ event.preventDefault(); handleAssistantSend(); }"></textarea>
-            <button class="assistant-btn" id="assistant-send-btn" onclick="handleAssistantSend()">Send</button>
-          </div>
-        </div>
-
-        <!-- Account Summary -->
-        <div class="account-card">
-          <div class="account-row">
-            <div class="account-avatar" id="account-avatar">?</div>
-            <div class="account-info">
-              <div class="account-name" id="account-name">—</div>
-              <div class="account-email" id="account-email">—</div>
-              <div class="account-role-badge student" id="account-role-badge">—</div>
-            </div>
-          </div>
-        </div>
-
-      </aside>
-    </div>
-  </div>
-
-  <!-- ============================================================
-       JAVASCRIPT
-  ============================================================ -->
   <script>
-  /* ============================================================
-     STATE
-  ============================================================ */
   let currentUser = { name: '', email: '', role: '', csrfToken: '' };
   let allProjects  = [];
-  /* ============================================================
-   DATA NORMALIZER HELPER
-============================================================ */
-function formatMongoData(doc) {
-  // MongoDB sends the ID as an object: {"$oid": "..."}. We need just the string.
-  const docId = (doc._id && doc._id.$oid) ? doc._id.$oid : (doc._id || doc.id);
-  
-  return {
-    ...doc,
-    id: docId,
-    student_name: doc.creator || doc.student_name || 'Unknown',
-    tags: Array.isArray(doc.tags) ? doc.tags.join(',') : (doc.tags || '')
-  };
-}
   let filteredProjects = [];
-  const PAGE_SIZE = 6;
+  const PAGE_SIZE = 8;
   let currentPage = 1;
 
-  /* ============================================================
-     TOAST SYSTEM
-  ============================================================ */
-  function showToast(message, type = 'info') {
-    const container = document.getElementById('toast-container');
-    const icons = {
-      success: `<svg class="toast-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>`,
-      error:   `<svg class="toast-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
-      info:    `<svg class="toast-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4F8EF7" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
-    };
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.innerHTML = `
-      <div class="toast-body">${icons[type]||icons.info}<span class="toast-msg">${message}</span></div>
-      <div class="toast-progress"><div class="toast-progress-inner"></div></div>
-    `;
-    container.appendChild(toast);
-    setTimeout(() => {
-      toast.classList.add('out');
-      setTimeout(() => toast.remove(), 300);
-    }, 3500);
+  function formatMongoData(doc) {
+    const docId = (doc._id && doc._id.$oid) ? doc._id.$oid : (doc._id || doc.id);
+    return { ...doc, id: docId, student_name: doc.creator || doc.student_name || 'Unknown', tags: Array.isArray(doc.tags) ? doc.tags.join(',') : (doc.tags || '') };
   }
 
-  /* ============================================================
-     AUTH CHECK — runs on page load
-  ============================================================ */
+  function toggleWorkspacePane() {
+    const pane = document.getElementById('workspace-pane'), main = document.getElementById('main-workspace');
+    if (window.innerWidth > 1024) { pane.classList.toggle('closed'); main.classList.toggle('expanded'); } 
+    else { pane.classList.toggle('open'); }
+  }
+
+  function switchWorkspaceTab(tabId, el) {
+    document.querySelectorAll('.w-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.w-panel').forEach(p => p.classList.remove('active'));
+    el.classList.add('active'); document.getElementById(tabId).classList.add('active');
+  }
+
+  function showToast(message, type = 'info') {
+    const container = document.getElementById('toast-container'), toast = document.createElement('div');
+    toast.className = `toast ${type}`; toast.innerHTML = `<span>${message}</span>`;
+    container.appendChild(toast); setTimeout(() => { toast.classList.add('out'); setTimeout(() => toast.remove(), 300); }, 3500);
+  }
+
   async function init() {
     try {
-      const res  = await fetch('../backend/get_session.php', { credentials: 'include' });
+      const res = await fetch('../backend/get_session.php', { credentials: 'include' });
       const data = await res.json();
-      if (data.status !== 'success') {
-        window.location.href = 'login.html';
-        return;
-      }
-      // Store user info
-      currentUser.name  = data.data?.name  || 'Unknown User';
-      currentUser.email = data.data?.email || '';
-      currentUser.role  = data.data?.role  || 'student';
-      currentUser.csrfToken = data.csrf_token || '';
-
-      applyUserUI();
-      loadProjects();
+      if (data.status !== 'success') { window.location.href = 'login.html'; return; }
+      currentUser.name = data.data?.name || 'Unknown User'; currentUser.email = data.data?.email || ''; currentUser.role = data.data?.role || 'student'; currentUser.csrfToken = data.csrf_token || '';
+      applyUserUI(); loadProjects();
       if (currentUser.role === 'faculty') loadPendingQueue();
-    } catch (err) {
-      showToast('Connection error. Please try again.', 'error');
-      setTimeout(() => { window.location.href = 'login.html'; }, 2000);
-    }
+    } catch (err) { setTimeout(() => { window.location.href = 'login.html'; }, 2000); }
   }
 
-  /* ============================================================
-     APPLY USER INFO TO UI
-  ============================================================ */
   function applyUserUI() {
-    const { name, email, role } = currentUser;
-
-    // Navbar
-    document.getElementById('nav-username').textContent = name;
-    const rolePill  = document.getElementById('nav-role-pill');
-    const roleLabel = document.getElementById('nav-role-label');
-    roleLabel.textContent = role.charAt(0).toUpperCase() + role.slice(1);
-    if (role === 'faculty') rolePill.classList.add('faculty');
-
-    // Account summary card
-    document.getElementById('account-avatar').textContent = name.charAt(0).toUpperCase();
-    document.getElementById('account-name').textContent   = name;
-    document.getElementById('account-email').textContent  = email;
-    const badge = document.getElementById('account-role-badge');
-    badge.textContent = role.charAt(0).toUpperCase() + role.slice(1);
-    badge.className = `account-role-badge ${role}`;
-
-    // Show moderation card for faculty
-    if (role === 'faculty') document.getElementById('moderation-card').style.display = 'block';
+    document.getElementById('account-avatar').textContent = currentUser.name.charAt(0).toUpperCase();
+    if (currentUser.role === 'faculty') document.getElementById('moderation-tab-header').style.display = 'flex';
   }
 
-  /* ============================================================
-     LOGOUT
-  ============================================================ */
-  async function handleLogout() {
-    try {
-      await fetch('../backend/logout.php', { credentials: 'include' });
-    } catch (_) { /* proceed anyway */ }
-    window.location.href = 'login.html';
-  }
+  async function handleLogout() { try { await fetch('../backend/logout.php', { credentials: 'include' }); } catch (_) {} window.location.href = 'login.html'; }
 
-  /* ============================================================
-     LOAD PROJECTS
-  ============================================================ */
   async function loadProjects() {
     try {
-      const res  = await fetch('../backend/get_projects.php', { credentials: 'include' });
+      const res = await fetch('../backend/get_projects.php', { credentials: 'include' });
       const data = await res.json();
-      if (data.status === 'success') {
-        allProjects = (data.data || []).map(formatMongoData);
-        filteredProjects = [...allProjects];
-        currentPage = 1;
-        renderProjects();
-      } else {
-        showToast(data.message || 'Failed to load projects.', 'error');
-        document.getElementById('projects-grid').innerHTML = emptyStateHTML('Failed to load projects', 'Server returned an error. Please refresh and try again.');
-      }
-    } catch (err) {
-      showToast('Network error loading projects.', 'error');
-      document.getElementById('projects-grid').innerHTML = emptyStateHTML('Connection error', 'Could not reach the server. Check your connection.');
-    }
+      if (data.status === 'success') { allProjects = (data.data || []).map(formatMongoData); filteredProjects = [...allProjects]; currentPage = 1; renderProjects(); } 
+      else document.getElementById('projects-grid').innerHTML = emptyStateHTML('Failed to load projects', 'Error message caught.');
+    } catch (err) { document.getElementById('projects-grid').innerHTML = emptyStateHTML('Connection error', 'Could not sync records.'); }
   }
 
-  /* ============================================================
-     RENDER PROJECTS (with pagination)
-  ============================================================ */
   function renderProjects() {
     const grid = document.getElementById('projects-grid');
-    const totalPages = Math.ceil(filteredProjects.length / PAGE_SIZE);
-    const start = (currentPage - 1) * PAGE_SIZE;
-    const page  = filteredProjects.slice(start, start + PAGE_SIZE);
-
-    if (filteredProjects.length === 0) {
-      grid.innerHTML = emptyStateHTML('No projects found', 'No research projects match your query. Try a different search term.');
-      document.getElementById('pagination').innerHTML = '';
-      return;
-    }
-
-    grid.innerHTML = page.map(p => projectCardHTML(p)).join('');
-    renderPagination(totalPages);
+    const totalPages = Math.ceil(filteredProjects.length / PAGE_SIZE), start = (currentPage - 1) * PAGE_SIZE, page = filteredProjects.slice(start, start + PAGE_SIZE);
+    if (filteredProjects.length === 0) { grid.innerHTML = emptyStateHTML('No projects found', 'Try adjusting search terms.'); document.getElementById('pagination').innerHTML = ''; return; }
+    grid.innerHTML = page.map(p => projectCardHTML(p)).join(''); renderPagination(totalPages);
   }
-
-  /* ============================================================
-     PROJECT CARD HTML
-  ============================================================ */
-  const TAG_VARIANTS = ['tag-v0', 'tag-v1', 'tag-v2', 'tag-v3'];
 
   function projectCardHTML(p) {
     const tags = (p.tags || '').split(',').map(t => t.trim()).filter(Boolean);
-    const tagPills = tags.map((t, i) => `<span class="tag-pill ${TAG_VARIANTS[i % 4]}">${escapeHTML(t)}</span>`).join('');
-    const collabs   = p.collaborators || [];
-    const memberCount = collabs.length;
-    const joined    = collabs.some(c => (c.email || c.id) === currentUser.email);
-    const joinBtn   = joined
-      ? `<button class="btn-join joined" disabled>✓ Joined</button>`
-      : `<button class="btn-join" onclick="handleJoin(event, '${p.id}', this)">Join Team</button>`;
-
-    return `
-      <div class="project-card" onclick="openModal('${p.id}')">
-        <div class="project-card-header">
-          <div class="project-title">${escapeHTML(p.title || 'Untitled Project')}</div>
-          <span class="status-badge approved">Approved</span>
-        </div>
-        <p class="project-desc">${escapeHTML(p.description || '')}</p>
-        <div class="tags-row">${tagPills}</div>
-        <div class="card-footer">
-          <div class="member-chip">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            <span id="member-count-${p.id}">${memberCount}</span> members
-          </div>
-          ${joinBtn}
-        </div>
-      </div>
-    `;
+    const tagPills = tags.map((t, i) => `<span class="tag-pill ${['tag-v0','tag-v1','tag-v2','tag-v3'][i % 4]}">${escapeHTML(t)}</span>`).join('');
+    const collabs = p.collaborators || [], joined = collabs.some(c => (c.email || c.id) === currentUser.email);
+    const joinBtn = joined ? `<button class="btn-join joined" disabled>✓ Joined</button>` : `<button class="btn-join" onclick="handleJoin(event, '${p.id}', this)">Join</button>`;
+    return `<div class="project-card" onclick="openModal('${p.id}')"><div class="project-card-header"><div class="project-title">${escapeHTML(p.title)}</div><span class="status-badge approved">Active</span></div><p class="project-desc">${escapeHTML(p.description)}</p><div class="tags-row">${tagPills}</div><div class="card-footer"><div class="member-chip"><span id="member-count-${p.id}">${collabs.length}</span> members</div>${joinBtn}</div></div>`;
   }
 
-  /* ============================================================
-     PAGINATION RENDER
-  ============================================================ */
   function renderPagination(totalPages) {
-    const pg = document.getElementById('pagination');
-    if (totalPages <= 1) { pg.innerHTML = ''; return; }
-
-    let html = `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>← Prev</button>`;
-    for (let i = 1; i <= totalPages; i++) {
-      html += `<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
-    }
-    html += `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>Next →</button>`;
-    pg.innerHTML = html;
+    const pg = document.getElementById('pagination'); if (totalPages <= 1) { pg.innerHTML = ''; return; }
+    let html = `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>←</button>`;
+    for (let i = 1; i <= totalPages; i++) html += `<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+    html += `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>→</button>`; pg.innerHTML = html;
   }
 
-  function goPage(n) {
-    const totalPages = Math.ceil(filteredProjects.length / PAGE_SIZE);
-    if (n < 1 || n > totalPages) return;
-    currentPage = n;
-    renderProjects();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
+  function goPage(n) { currentPage = n; renderProjects(); }
 
-  /* ============================================================
-     SEARCH
-  ============================================================ */
   async function handleSearch() {
     const query = document.getElementById('search-input').value.trim();
-
-    if (!query) {
-      filteredProjects = [...allProjects];
-      currentPage = 1;
-      renderProjects();
-      return;
-    }
-
-    showSearchSkeleton();
-
+    if (!query) { filteredProjects = [...allProjects]; currentPage = 1; renderProjects(); return; }
+    document.getElementById('projects-grid').innerHTML = `<div class="skeleton-card"><div class="skeleton sk-line short"></div><div class="skeleton sk-block"></div></div>`;
     try {
-      const res  = await fetch('../backend/search_projects.php', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query })
-      });
+      const res = await fetch('../backend/search_projects.php', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query }) });
       const data = await res.json();
-      
-      if (data.status === 'success' && data.data && data.data.length > 0) {
-        filteredProjects = data.data.map(formatMongoData);
-      } else {
-        // Fallback: Client-side filter (Lightning Fast)
-        // FIX: Force everything to be a String so Arrays don't crash the search!
-        const q = query.toLowerCase();
-        filteredProjects = allProjects.filter(p => {
-          const searchTitle = String(p.title || '').toLowerCase();
-          const searchDesc  = String(p.description || '').toLowerCase();
-          const searchTags  = String(p.tags || '').toLowerCase();
-          
-          return searchTitle.includes(q) || searchDesc.includes(q) || searchTags.includes(q);
-        });
-      }
-    } catch (_) {
-      // Catch network errors and still run the safe client-side filter
-      const q = query.toLowerCase();
-      filteredProjects = allProjects.filter(p => {
-        const searchTitle = String(p.title || '').toLowerCase();
-        const searchDesc  = String(p.description || '').toLowerCase();
-        const searchTags  = String(p.tags || '').toLowerCase();
-        
-        return searchTitle.includes(q) || searchDesc.includes(q) || searchTags.includes(q);
-      });
-    }
-
-    currentPage = 1;
-    renderProjects();
+      if (data.status === 'success' && data.data) filteredProjects = data.data.map(formatMongoData); else fallbackClientSearch(query);
+    } catch (_) { fallbackClientSearch(query); }
+    currentPage = 1; renderProjects();
   }
 
-  function showSearchSkeleton() {
-    document.getElementById('projects-grid').innerHTML = `
-      ${[1,2,3].map(()=>`
-        <div class="skeleton-card">
-          <div class="skeleton sk-line short"></div>
-          <div class="skeleton sk-block"></div>
-          <div class="skeleton sk-line long"></div>
-          <div class="skeleton sk-line medium"></div>
-        </div>
-      `).join('')}
-    `;
-    document.getElementById('pagination').innerHTML = '';
-  }
+  function fallbackClientSearch(query) { const q = query.toLowerCase(); filteredProjects = allProjects.filter(p => String(p.title||'').toLowerCase().includes(q) || String(p.description||'').toLowerCase().includes(q) || String(p.tags||'').toLowerCase().includes(q)); }
 
-  /* ============================================================
-     JOIN PROJECT
-  ============================================================ */
   async function handleJoin(event, projectId, btn) {
-    event.stopPropagation(); // Prevent card click
-    btn.disabled = true;
-    btn.textContent = '…';
-
+    event.stopPropagation(); btn.disabled = true;
     try {
-      const res  = await fetch('../backend/join_project.php', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ project_id: projectId, csrf_token: currentUser.csrfToken })
-      });
+      const res = await fetch('../backend/join_project.php', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ project_id: projectId, csrf_token: currentUser.csrfToken }) });
       const data = await res.json();
-
-      if (data.status === 'success') {
-        btn.textContent = '✓ Joined';
-        btn.classList.add('joined');
-        btn.disabled = true;
-        // Increment member count in DOM
-        const countEl = document.getElementById(`member-count-${projectId}`);
-        if (countEl) countEl.textContent = parseInt(countEl.textContent) + 1;
-        showToast('You have joined the project!', 'success');
-        // Update local data
-        const proj = allProjects.find(p => p.id == projectId);
-        if (proj) proj.collaborators = [...(proj.collaborators||[]), { email: currentUser.email }];
-      } else {
-        btn.textContent = 'Join Team';
-        btn.disabled = false;
-        showToast(data.message || 'Could not join project.', 'error');
-      }
-    } catch (err) {
-      btn.textContent = 'Join Team';
-      btn.disabled = false;
-      showToast('Network error. Please try again.', 'error');
-    }
+      if (data.status === 'success') { btn.textContent = '✓ Joined'; btn.classList.add('joined'); const el = document.getElementById(`member-count-${projectId}`); if(el) el.textContent = parseInt(el.textContent) + 1; showToast('Joined team successfully.', 'success'); } else { btn.disabled = false; showToast(data.message, 'error'); }
+    } catch (_) { btn.disabled = false; }
   }
 
-  /* ============================================================
-     DETAILS MODAL
-  ============================================================ */
   function openModal(projectId) {
-    // FIX 1: Look in filteredProjects first so search results actually load!
-    const p = filteredProjects.find(p => p.id == projectId) || allProjects.find(p => p.id == projectId);
-    if (!p) return;
-
-    document.getElementById('modal-title').textContent = p.title || 'Untitled Project';
-    document.getElementById('modal-desc').textContent  = p.description || '';
-    
-    // FIX 2: Format the messy database timestamp into a clean, readable date
-    let dateStr = p.created_at || 'Unknown';
-    if (dateStr !== 'Unknown') {
-      const d = new Date(dateStr);
-      if (!isNaN(d)) dateStr = d.toLocaleDateString(); 
-    }
-    document.getElementById('modal-date').textContent  = dateStr;
-    
-    // FIX 3: Read the new 'approved_by' field we just added to the backend
-    document.getElementById('modal-faculty').textContent = p.approved_by || 'Unknown Faculty';
-
-    // Tags
-    const tags = (p.tags||'').split(',').map(t=>t.trim()).filter(Boolean);
-    document.getElementById('modal-tags').innerHTML = tags.map((t,i) =>
-      `<span class="tag-pill ${TAG_VARIANTS[i%4]}">${escapeHTML(t)}</span>`
-    ).join('');
-
-    // Collaborators
-    const collabs = p.collaborators || [];
-    const cl = document.getElementById('modal-collaborators');
-    if (collabs.length === 0) {
-      cl.innerHTML = '<li style="color:var(--muted);font-size:13px">No collaborators yet.</li>';
-    } else {
-      cl.innerHTML = collabs.map(c => {
-        const name = c.name || c.email || 'Unknown';
-        const initials = name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-        return `<li class="collaborator-item"><div class="collaborator-avatar">${initials}</div>${escapeHTML(name)}</li>`;
-      }).join('');
-    }
-
+    const p = filteredProjects.find(p => p.id == projectId) || allProjects.find(p => p.id == projectId); if (!p) return;
+    document.getElementById('modal-title').textContent = p.title; document.getElementById('modal-desc').textContent = p.description; document.getElementById('modal-faculty').textContent = p.approved_by || 'Verified Core';
+    let dateStr = p.created_at || 'Recent'; if(p.created_at) { const d = new Date(p.created_at); if(!isNaN(d)) dateStr = d.toLocaleDateString(); } document.getElementById('modal-date').textContent = dateStr;
+    const tags = (p.tags||'').split(',').map(t=>t.trim()).filter(Boolean); document.getElementById('modal-tags').innerHTML = tags.map((t,i) => `<span class="tag-pill ${['tag-v0','tag-v1','tag-v2','tag-v3'][i%4]}">${escapeHTML(t)}</span>`).join('');
+    const cl = document.getElementById('modal-collaborators'); cl.innerHTML = (p.collaborators || []).map(c => `<li class="collaborator-item"><div class="collaborator-avatar">?</div>${escapeHTML(c.name || c.email)}</li>`).join('') || '<li>No collaborators.</li>';
     document.getElementById('modal-overlay').classList.add('open');
-    document.body.style.overflow = 'hidden';
   }
 
-  function closeModal() {
-    document.getElementById('modal-overlay').classList.remove('open');
-    document.body.style.overflow = '';
-  }
+  function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+  function handleOverlayClick(e) { if (e.target.id === 'modal-overlay') closeModal(); }
 
-  function handleOverlayClick(e) {
-    if (e.target === document.getElementById('modal-overlay')) closeModal();
-  }
-
-  // ESC to close modal
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
-
-  /* ============================================================
-     PROPOSAL SUBMISSION
-  ============================================================ */
   async function handleProposalSubmit() {
-    const title = document.getElementById('prop-title').value.trim();
-    const desc  = document.getElementById('prop-desc').value.trim();
-    const tags  = document.getElementById('prop-tags').value.trim();
-
-    if (!title || !desc) {
-      showToast('Please fill in the title and description.', 'error');
-      return;
-    }
-
-    const btn = document.getElementById('prop-submit-btn');
-    const sp  = document.getElementById('prop-spinner');
-    const txt = document.getElementById('prop-btn-text');
-    btn.disabled = true; sp.classList.add('show'); txt.textContent = 'Submitting…';
-
+    const title = document.getElementById('prop-title').value.trim(), description = document.getElementById('prop-desc').value.trim(), tags = document.getElementById('prop-tags').value.trim();
+    if(!title || !description) return showToast('Fill structural components.', 'error');
     try {
-      const res  = await fetch('../backend/submit_project.php', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, description: desc, tags, csrf_token: currentUser.csrfToken })
-      });
+      const res = await fetch('../backend/submit_project.php', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, description, tags, csrf_token: currentUser.csrfToken }) });
       const data = await res.json();
-
-      if (data.status === 'success') {
-        showToast('Proposal submitted successfully!', 'success');
-        document.getElementById('prop-title').value = '';
-        document.getElementById('prop-desc').value  = '';
-        document.getElementById('prop-tags').value  = '';
-      } else {
-        showToast(data.message || 'Submission failed.', 'error');
-      }
-    } catch (err) {
-      showToast('Network error. Please try again.', 'error');
-    } finally {
-      btn.disabled = false; sp.classList.remove('show'); txt.textContent = 'Submit Proposal';
-    }
+      if(data.status === 'success') { showToast('Proposal submitted to moderation.', 'success'); document.getElementById('prop-title').value = ''; document.getElementById('prop-desc').value = ''; document.getElementById('prop-tags').value = ''; }
+    } catch (_) {}
   }
 
-  /* ============================================================
-     MODERATION QUEUE (Faculty)
-  ============================================================ */
   async function loadPendingQueue() {
-    try {
-      const res  = await fetch('../backend/get_pending.php', { credentials: 'include' });
-      const data = await res.json();
-      const mappedQueue = (data.data || []).map(formatMongoData);
-      renderPendingQueue(mappedQueue);
-    } catch (err) {
-      showToast('Could not load moderation queue.', 'error');
-      renderPendingQueue([]);
-    }
+    try { const res = await fetch('../backend/get_pending.php', { credentials: 'include' }); const data = await res.json(); renderPendingQueue((data.data || []).map(formatMongoData)); } catch (_) { renderPendingQueue([]); }
   }
 
   function renderPendingQueue(items) {
-    const list = document.getElementById('pending-list');
-    if (!items || items.length === 0) {
-      list.innerHTML = `
-        <div class="all-clear">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="1.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
-          <span>All clear — no pending proposals</span>
-        </div>`;
-      return;
-    }
-
-    list.innerHTML = items.map(item => `
-      <div class="pending-item" id="pending-${item.id}">
-        <div class="pending-title">${escapeHTML(item.title || 'Untitled')}</div>
-        <div class="pending-meta">
-          ${escapeHTML((item.description||'').slice(0, 90))}${(item.description||'').length > 90 ? '…' : ''}<br/>
-          <strong style="color:var(--text)">By:</strong> ${escapeHTML(item.student_name || item.submitted_by || 'Unknown')}
-        </div>
-        <div class="pending-actions">
-          <button class="btn-authorize" onclick="reviewProject('${item.id}', 'approve', this)">Authorize</button>
-          <button class="btn-reject"    onclick="reviewProject('${item.id}', 'reject',  this)">Reject</button>
-        </div>
-      </div>
-    `).join('');
+    const list = document.getElementById('pending-list'); if(!items.length) { list.innerHTML = '<div class="empty-state">Queue clear.</div>'; return; }
+    list.innerHTML = items.map(item => `<div class="pending-item" id="pending-${item.id}"><div class="pending-title">${escapeHTML(item.title)}</div><div class="pending-meta">By: ${escapeHTML(item.student_name)}</div><div class="pending-actions"><button class="btn-join" onclick="reviewProject('${item.id}', 'approve')">Authorize</button><button class="btn-join" style="color:var(--danger); border-color:rgba(239,68,68,0.3)" onclick="reviewProject('${item.id}', 'reject')">Reject</button></div></div>`).join('');
   }
 
-  async function reviewProject(projectId, action, btn) {
-    // Disable both buttons in this item
-    const itemEl = document.getElementById(`pending-${projectId}`);
-    if (itemEl) itemEl.querySelectorAll('button').forEach(b => b.disabled = true);
-
-    const backendAction = action === 'approve' ? 'approved' : 'rejected'
-
-    try {
-      const res  = await fetch('../backend/review_project.php', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ project_id: projectId, action, csrf_token: currentUser.csrfToken })
-      });
-      const data = await res.json();
-
-      if (data.status === 'success') {
-        showToast(action === 'approve' ? 'Project authorized!' : 'Project rejected.', action === 'approve' ? 'success' : 'info');
-        // Animate out
-        if (itemEl) {
-          itemEl.classList.add('removing');
-          setTimeout(() => {
-            itemEl.remove();
-            // Check if empty
-            const list = document.getElementById('pending-list');
-            if (list && list.children.length === 0) renderPendingQueue([]);
-          }, 380);
-        }
-        // Reload main projects if approved
-        if (action === 'approve') loadProjects();
-      } else {
-        showToast(data.message || 'Action failed.', 'error');
-        if (itemEl) itemEl.querySelectorAll('button').forEach(b => b.disabled = false);
-      }
-    } catch (err) {
-      showToast('Network error. Please try again.', 'error');
-      if (itemEl) itemEl.querySelectorAll('button').forEach(b => b.disabled = false);
-    }
+  async function reviewProject(projectId, action) {
+    try { const res = await fetch('../backend/review_project.php', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ project_id: projectId, action, csrf_token: currentUser.csrfToken }) }); const data = await res.json(); if(data.status === 'success') { showToast('Record managed.', 'success'); document.getElementById(`pending-${projectId}`)?.remove(); loadProjects(); } } catch (_) {}
   }
 
   async function handleAssistantSend() {
-    const input = document.getElementById('assistant-input');
-    const prompt = input.value.trim();
-    if (!prompt) {
-      showToast('Enter a question for the assistant.', 'info');
-      return;
-    }
-
-    appendAssistantMessage(prompt, 'user');
-    input.value = '';
-    setAssistantLoading(true);
-
-    try {
-      const res = await fetch('../backend/ai_assistant.php', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: prompt, csrf_token: currentUser.csrfToken })
-      });
-      let data;
-      const contentType = res.headers.get('content-type') || '';
-      if (contentType.includes('application/json')) {
-        data = await res.json();
-      } else {
-        const text = await res.text();
-        throw new Error(text || 'Assistant returned a non-JSON response.');
-      }
-
-      if (data.status === 'success') {
-        appendAssistantMessage(data.assistant, 'assistant');
-        if (data.provider) {
-          showToast(`Assistant response from ${data.provider}.`, 'info');
-        }
-      } else {
-        appendAssistantMessage(data.message || 'Unable to reach the assistant right now.', 'assistant');
-        showToast(data.message || 'Assistant error', 'error');
-      }
-    } catch (err) {
-      appendAssistantMessage('Unable to contact the assistant. Please try again later.', 'assistant');
-      showToast('Network error. Assistant unavailable.', 'error');
-    } finally {
-      setAssistantLoading(false);
-    }
+    const input = document.getElementById('assistant-input'), query = input.value.trim(); if(!query) return;
+    appendAssistantMessage(query, 'user'); input.value = '';
+    try { const res = await fetch('../backend/ai_assistant.php', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query, csrf_token: currentUser.csrfToken }) }); const data = await res.json(); if(data.status === 'success') appendAssistantMessage(data.assistant, 'assistant'); } catch (_) { appendAssistantMessage('System interaction dropped.', 'assistant'); }
   }
 
-  function appendAssistantMessage(text, role) {
-    const container = document.getElementById('assistant-messages');
-    const msg = document.createElement('div');
-    msg.className = `assistant-message ${role}`;
-    msg.textContent = text;
-    container.appendChild(msg);
-    container.scrollTop = container.scrollHeight;
-  }
+  function appendAssistantMessage(text, role) { const container = document.getElementById('assistant-messages'), msg = document.createElement('div'); msg.className = `assistant-message ${role}`; msg.textContent = text; container.appendChild(msg); container.scrollTop = container.scrollHeight; }
 
-  function setAssistantLoading(isLoading) {
-    const input = document.getElementById('assistant-input');
-    const button = document.getElementById('assistant-send-btn');
-    input.disabled = isLoading;
-    button.disabled = isLoading;
-    button.textContent = isLoading ? 'Thinking…' : 'Send';
-  }
-
-  /* ============================================================
-     EMPTY STATE HTML
-  ============================================================ */
-  function emptyStateHTML(heading, sub) {
-    return `
-      <div class="empty-state">
-        <svg width="72" height="72" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="50" cy="50" r="35" stroke="rgba(79,142,247,0.2)" stroke-width="2"/>
-          <circle cx="50" cy="50" r="20" stroke="rgba(79,142,247,0.15)" stroke-width="2"/>
-          <circle cx="50" cy="50" r="5" fill="rgba(79,142,247,0.3)"/>
-          <line x1="15" y1="50" x2="30" y2="50" stroke="rgba(79,142,247,0.3)" stroke-width="2" stroke-linecap="round"/>
-          <line x1="70" y1="50" x2="85" y2="50" stroke="rgba(79,142,247,0.3)" stroke-width="2" stroke-linecap="round"/>
-          <line x1="50" y1="15" x2="50" y2="30" stroke="rgba(79,142,247,0.3)" stroke-width="2" stroke-linecap="round"/>
-          <line x1="50" y1="70" x2="50" y2="85" stroke="rgba(79,142,247,0.3)" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        <h3>${heading}</h3>
-        <p>${sub}</p>
-      </div>
-    `;
-  }
-
-  /* ============================================================
-     UTILITY — HTML escape
-  ============================================================ */
-  function escapeHTML(str) {
-    return String(str)
-      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-  }
-
-  /* ============================================================
-     BOOT
-  ============================================================ */
+  function emptyStateHTML(h, s) { return `<div class="empty-state"><h3>${h}</h3><p>${s}</p></div>`; }
+  function escapeHTML(str) { return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  
   init();
   </script>
 </body>
